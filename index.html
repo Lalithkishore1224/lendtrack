@@ -1801,8 +1801,9 @@ function calcInterest(p, r, d, type, fromVal, toVal) {
     return r * d;
   }
   if (!d) return 0;
-  const div = RATE_DIV[type] || 30;
-  return (p * (r / 100) * d) / div;
+  // Daily: principal × (rate% / 100) × number of days
+  // e.g. ₹2000 × 2% × 30 days = ₹1,200
+  return (p * (r / 100)) * d;
 }
 
 function calcRate(p, i, d, type) {
