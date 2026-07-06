@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" id="metaThemeColor" content="#000000" />
   <title>LendTrack Pro — Interest & Lending Tracker</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%230d9488'/><circle cx='50' cy='50' r='38' fill='none' stroke='white' stroke-width='3' stroke-dasharray='6 3'/><text x='50' y='65' font-family='system-ui, -apple-system, sans-serif' font-size='45' font-weight='900' fill='white' text-anchor='middle'>₹</text></svg>">
   <link rel="manifest" href="manifest.json">
@@ -23,6 +24,8 @@
       --warning-light: #fef3c7;
       --purple:        #0d9488;
       --purple-light:  #f0fdfa;
+      --indigo:        #6366f1;
+      --indigo-light:  #e0e7ff;
       --gray-50:  #f8fafc;
       --gray-100: #f1f5f9;
       --gray-200: #e2e8f0;
@@ -62,6 +65,8 @@
       --primary-light: #1e3a8a;
       --purple-light: rgba(45, 212, 191, 0.12);
       --purple: #2dd4bf;
+      --indigo-light: rgba(129, 140, 248, 0.12);
+      --indigo: #818cf8;
       --success-light: rgba(16, 185, 129, 0.12);
       --danger-light: rgba(239, 68, 68, 0.12);
       --warning-light: rgba(245, 158, 11, 0.12);
@@ -330,6 +335,7 @@
     .stat-card.green::after { background:var(--success); }
     .stat-card.amber::after { background:var(--warning); }
     .stat-card.violet::after { background:var(--purple); }
+    .stat-card.indigo::after { background:var(--indigo); }
 
     .stat-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
     .stat-label { font-size:12.5px; font-weight:600; color:var(--gray-500); }
@@ -343,6 +349,7 @@
     .stat-badge.green  { background:var(--success-light); color:var(--success); }
     .stat-badge.amber  { background:var(--warning-light); color:var(--warning); }
     .stat-badge.violet { background:var(--purple-light);  color:var(--purple); }
+    .stat-badge.indigo { background:var(--indigo-light);  color:var(--indigo); }
 
     .stat-value { font-size:24px; font-weight:800; color:var(--gray-900); line-height:1; margin-bottom:5px; }
     .stat-meta  { font-size:11.5px; color:var(--gray-400); }
@@ -886,80 +893,55 @@
       .page-title { font-size:15px; }
     }
 
-    /* ── App's Money Feature Styles ── */
-    .toggle-container {
+    /* ── Funding Source Segmented Toggle Styles ── */
+    .funding-source-toggle {
       display: flex;
-      align-items: center;
-      gap: 12px;
-      background: var(--gray-50);
-      padding: 12px 16px;
-      border-radius: var(--radius);
-      border: 1.5px dashed var(--gray-200);
+      background: var(--gray-100);
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--gray-200);
+    }
+    .funding-source-toggle label {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-radius: 4px;
       transition: var(--transition);
-      cursor: pointer;
     }
-    .toggle-container:has(input:checked) {
-      border-color: var(--purple);
-      background: var(--purple-light);
+    .funding-source-toggle input {
+      display: none;
     }
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-      flex-shrink: 0;
+    .funding-source-toggle input#fundSelf:checked + label {
+      background: var(--primary);
+      color: #fff;
     }
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
+    .funding-source-toggle input#fundApp:checked + label {
+      background: var(--purple);
+      color: #fff;
     }
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: var(--gray-300);
-      transition: .3s;
-      border-radius: 24px;
-    }
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: #fff;
-      transition: .3s;
-      border-radius: 50%;
-    }
-    input:checked + .toggle-slider {
-      background-color: var(--purple);
-    }
-    input:checked + .toggle-slider:before {
-      transform: translateX(20px);
-    }
-    .toggle-label-group {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+    .funding-source-toggle input#fundPerson:checked + label {
+      background: var(--indigo);
+      color: #fff;
     }
 
-    /* Highlight rows and cards */
+    /* Highlight rows and cards (App Funding - Teal) */
     tr.row-app-money {
-      background: rgba(124, 58, 237, 0.03) !important;
+      background: rgba(13, 148, 136, 0.02) !important;
     }
     tr.row-app-money:hover {
-      background: rgba(124, 58, 237, 0.07) !important;
+      background: rgba(13, 148, 136, 0.05) !important;
     }
     tr.row-app-money td:first-child {
       border-left: 4px solid var(--purple);
     }
     .mobile-card.card-app-money {
       border-left: 4px solid var(--purple) !important;
-      background: linear-gradient(135deg, var(--white), rgba(124, 58, 237, 0.03)) !important;
+      background: linear-gradient(to right, var(--white), rgba(13, 148, 136, 0.02)) !important;
     }
-
     .app-money-tag {
       display: inline-flex;
       align-items: center;
@@ -968,6 +950,35 @@
       font-weight: 700;
       color: var(--purple);
       background: var(--purple-light);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      text-transform: uppercase;
+      vertical-align: middle;
+    }
+
+    /* Highlight rows and cards (Person Funding - Indigo) */
+    tr.row-person-money {
+      background: rgba(99, 102, 241, 0.02) !important;
+    }
+    tr.row-person-money:hover {
+      background: rgba(99, 102, 241, 0.05) !important;
+    }
+    tr.row-person-money td:first-child {
+      border-left: 4px solid var(--indigo);
+    }
+    .mobile-card.card-person-money {
+      border-left: 4px solid var(--indigo) !important;
+      background: linear-gradient(to right, var(--white), rgba(99, 102, 241, 0.02)) !important;
+    }
+    .person-money-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--indigo);
+      background: var(--indigo-light);
       padding: 2px 6px;
       border-radius: 4px;
       margin-left: 6px;
@@ -1141,15 +1152,7 @@
     </nav>
 
     <div class="sidebar-footer">
-      <div class="url-config-box">
-        <label><i class="fas fa-plug" style="margin-right:4px"></i>Apps Script URL</label>
-        <input type="url" class="url-config-input" id="scriptUrlInput"
-          placeholder="https://script.google.com/..." />
-        <button class="url-save-btn" onclick="saveScriptUrl()">
-          <i class="fas fa-check" style="margin-right:5px"></i>Connect
-        </button>
-      </div>
-      <button class="btn btn-secondary" id="installAppBtn" onclick="installApp()" style="display:none; width:100%; margin-top:14px; padding:10px 14px; font-size:13px; justify-content:center; gap:8px;">
+      <button class="btn btn-secondary" id="installAppBtn" onclick="installApp()" style="display:none; width:100%; padding:10px 14px; font-size:13px; justify-content:center; gap:8px;">
         <i class="fas fa-download"></i> Install App
       </button>
     </div>
@@ -1183,21 +1186,7 @@
     <!-- Page Content -->
     <div class="page-content">
 
-      <!-- Setup Banner -->
-      <div class="setup-banner" id="setupBanner">
-        <div class="setup-banner-icon"><i class="fas fa-plug"></i></div>
-        <div class="setup-banner-body">
-          <h3>Connect Your Google Sheet</h3>
-          <p>Paste your deployed Apps Script URL in the sidebar to start tracking.</p>
-        </div>
-        <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)"
-          onclick="document.getElementById('scriptUrlInput').focus()">
-          Configure
-        </button>
-        <button class="setup-close" onclick="document.getElementById('setupBanner').classList.remove('visible')">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
+
 
       <!-- Dashboard View -->
       <div id="dashboardView" class="dashboard-view active">
@@ -1217,7 +1206,7 @@
             <div class="stat-badge green"><i class="fas fa-chart-line"></i></div>
           </div>
           <div class="stat-value" id="statInterest">₹0</div>
-          <div class="stat-meta" id="statInterestMeta">Gross interest minus app interest</div>
+          <div class="stat-meta" id="statInterestMeta">Gross interest minus expenses</div>
         </div>
         <div class="stat-card violet">
           <div class="stat-top">
@@ -1226,6 +1215,14 @@
           </div>
           <div class="stat-value" id="statAppInterest">₹0</div>
           <div class="stat-meta">Interest owed to credit apps</div>
+        </div>
+        <div class="stat-card indigo">
+          <div class="stat-top">
+            <span class="stat-label">Person Interest Owed</span>
+            <div class="stat-badge indigo"><i class="fas fa-user-minus"></i></div>
+          </div>
+          <div class="stat-value" id="statPersonInterest">₹0</div>
+          <div class="stat-meta">Interest owed to lenders</div>
         </div>
         <div class="stat-card amber">
           <div class="stat-top">
@@ -1322,7 +1319,7 @@
               <div class="stat-badge green"><i class="fas fa-coins"></i></div>
             </div>
             <div class="stat-value" id="walletProfit">₹0</div>
-            <div class="stat-meta" id="walletProfitMeta">Interest collected minus app interest paid</div>
+            <div class="stat-meta" id="walletProfitMeta">Interest collected minus expenses paid</div>
           </div>
           <div class="stat-card violet">
             <div class="stat-top">
@@ -1331,6 +1328,14 @@
             </div>
             <div class="stat-value" id="walletAppInterest">₹0</div>
             <div class="stat-meta" id="walletAppInterestMeta">Total interest paid to credit apps</div>
+          </div>
+          <div class="stat-card indigo">
+            <div class="stat-top">
+              <span class="stat-label">Person Interest Paid</span>
+              <div class="stat-badge indigo"><i class="fas fa-user-check"></i></div>
+            </div>
+            <div class="stat-value" id="walletPersonInterest">₹0</div>
+            <div class="stat-meta">Total interest paid to lenders</div>
           </div>
           <div class="stat-card blue">
             <div class="stat-top">
@@ -1482,17 +1487,18 @@
             <span class="form-hint">Enter manually to compute rate</span>
           </div>
 
-          <!-- App's Money Toggle -->
+          <!-- Funding Source Segmented Toggle -->
           <div class="fg span2">
-            <div class="toggle-container" onclick="toggleAppMoneyCheckbox()">
-              <label class="toggle-switch" onclick="event.stopPropagation()">
-                <input type="checkbox" id="isAppMoney" onchange="toggleAppMoneyRow()" />
-                <span class="toggle-slider"></span>
-              </label>
-              <div class="toggle-label-group">
-                <span class="form-label">Funded by App's Money</span>
-                <span class="form-hint">Check if this loan was funded via a credit app</span>
-              </div>
+            <label class="form-label">Funding Source</label>
+            <div class="funding-source-toggle">
+              <input type="radio" id="fundSelf" name="fundingSource" value="self" checked onchange="toggleFundingFields()" />
+              <label for="fundSelf">Self-Funded</label>
+              
+              <input type="radio" id="fundApp" name="fundingSource" value="app" onchange="toggleFundingFields()" />
+              <label for="fundApp">App-Funded</label>
+              
+              <input type="radio" id="fundPerson" name="fundingSource" value="person" onchange="toggleFundingFields()" />
+              <label for="fundPerson">Person-Funded</label>
             </div>
           </div>
 
@@ -1504,9 +1510,19 @@
               <input type="number" class="form-input" id="appInterest"
                 placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
             </div>
-            <span class="form-hint">The amount of interest charged by the app</span>
+            <span class="form-hint">Interest charged by the credit app</span>
           </div>
-          <div class="fg" id="appInterestPlaceholder" style="display: none;"></div>
+
+          <!-- Person Interest Row -->
+          <div class="fg" id="personInterestRow" style="display: none;">
+            <label class="form-label">Person Interest Amount <span class="req">*</span></label>
+            <div class="input-wrap has-pre">
+              <span class="input-pre">₹</span>
+              <input type="number" class="form-input" id="personInterest"
+                placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+            </div>
+            <span class="form-hint">Interest paid to the lender person</span>
+          </div>
 
           <!-- Live Preview -->
           <div class="calc-preview">
@@ -1517,7 +1533,7 @@
                 <div class="calc-item-val" id="prevInterest">₹0.00</div>
               </div>
               <div class="calc-item" id="prevRealProfitItem" style="display: none;">
-                <div class="calc-item-label" style="color:var(--purple)">Real Profit</div>
+                <div class="calc-item-label" id="prevRealProfitLabel" style="color:var(--purple)">Net Profit</div>
                 <div class="calc-item-val" id="prevRealProfit" style="color:var(--purple); font-weight:800;">₹0.00</div>
               </div>
               <div class="calc-item">
@@ -1548,9 +1564,7 @@
 ============================================================ -->
 <script>
 // ── Config ──────────────────────────────────────────────────
-const URL_KEY    = 'lendtrack_script_url';
-const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbxscyml2KoJRawJNGscjLPp88W2l_xYxSHT6H3kYwOX7FemZFe8kPlhLdTOovbX_Jbdbw/exec';
-let SCRIPT_URL = localStorage.getItem(URL_KEY) || DEFAULT_URL;
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxscyml2KoJRawJNGscjLPp88W2l_xYxSHT6H3kYwOX7FemZFe8kPlhLdTOovbX_Jbdbw/exec';
 
 // ── State ────────────────────────────────────────────────────
 let allRecords     = [];
@@ -1563,12 +1577,15 @@ let lastEditField  = null; // 'rate' | 'interest'
 
 // ── Theme Management ─────────────────────────────────────────
 function toggleTheme(checked) {
+  const meta = document.getElementById('metaThemeColor');
   if (checked) {
     document.body.classList.add('dark-mode');
     localStorage.setItem('lendtrack_theme', 'dark');
+    if (meta) meta.setAttribute('content', '#000000');
   } else {
     document.body.classList.remove('dark-mode');
     localStorage.setItem('lendtrack_theme', 'light');
+    if (meta) meta.setAttribute('content', '#ffffff');
   }
 }
 
@@ -1601,27 +1618,19 @@ async function installApp() {
 document.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('lendtrack_theme');
   const isDark = savedTheme !== 'light';
+  const meta = document.getElementById('metaThemeColor');
   if (isDark) {
     document.body.classList.add('dark-mode');
+    if (meta) meta.setAttribute('content', '#000000');
   } else {
     document.body.classList.remove('dark-mode');
+    if (meta) meta.setAttribute('content', '#ffffff');
   }
   const themeCheckbox = document.getElementById('themeCheckbox');
   if (themeCheckbox) {
     themeCheckbox.checked = isDark;
   }
 
-  const oldDefault = 'https://script.google.com/macros/s/AKfycbyopCJ8FLXY3gF4gTJ5niKPzEO4dEMu1TvC5Eel1-Z0muGrBuTVkqcudp7FriRtBeOHtA/exec';
-  if (localStorage.getItem(URL_KEY) === oldDefault) {
-    localStorage.setItem(URL_KEY, DEFAULT_URL);
-    SCRIPT_URL = DEFAULT_URL;
-  }
-
-  if (SCRIPT_URL) {
-    document.getElementById('scriptUrlInput').value = SCRIPT_URL;
-  } else {
-    document.getElementById('setupBanner').classList.add('visible');
-  }
   setDefaultDates();
   fetchRecords();
 
@@ -1639,17 +1648,6 @@ function setDefaultDates() {
   from.setDate(from.getDate() - 30);
   document.getElementById('toDate').value   = fmtDateInput(today);
   document.getElementById('fromDate').value = fmtDateInput(from);
-}
-
-// ── URL Save ─────────────────────────────────────────────────
-function saveScriptUrl() {
-  const val = document.getElementById('scriptUrlInput').value.trim();
-  if (!val) { toast('Please enter a valid URL.', 'error'); return; }
-  SCRIPT_URL = val;
-  localStorage.setItem(URL_KEY, val);
-  document.getElementById('setupBanner').classList.remove('visible');
-  toast('Connected successfully!', 'success');
-  fetchRecords();
 }
 
 // ── Connectivity helpers ──────────────────────────────────────
@@ -1812,23 +1810,40 @@ function daysBetween(f, t) {
   return Math.max(0, Math.round((b - a) / 86400000));
 }
 
-// ── App's Money Toggle Handlers ────────────────────────────────
-function toggleAppMoneyCheckbox() {
-  const checkbox = document.getElementById('isAppMoney');
-  checkbox.checked = !checkbox.checked;
-  toggleAppMoneyRow();
-}
-function toggleAppMoneyRow() {
-  const isChecked = document.getElementById('isAppMoney').checked;
-  document.getElementById('appInterestRow').style.display = isChecked ? '' : 'none';
-  document.getElementById('appInterestPlaceholder').style.display = isChecked ? '' : 'none';
+// ── Funding Source Toggle Handlers ─────────────────────────────
+function toggleFundingFields() {
+  const source = document.querySelector('input[name="fundingSource"]:checked')?.value || 'self';
+  const appRow = document.getElementById('appInterestRow');
+  const personRow = document.getElementById('personInterestRow');
+  const prevProfitItem = document.getElementById('prevRealProfitItem');
+  const prevProfitLabel = document.getElementById('prevRealProfitLabel');
+  const prevProfitVal = document.getElementById('prevRealProfit');
   
-  // Update Live Preview columns and items
-  document.getElementById('prevRealProfitItem').style.display = isChecked ? '' : 'none';
-  document.querySelector('.calc-preview .calc-row').classList.toggle('four-cols', isChecked);
-  
-  if (!isChecked) {
+  if (source === 'app') {
+    appRow.style.display = '';
+    personRow.style.display = 'none';
+    prevProfitItem.style.display = '';
+    prevProfitLabel.textContent = 'Net Profit';
+    prevProfitLabel.style.color = 'var(--purple)';
+    prevProfitVal.style.color = 'var(--purple)';
+    document.querySelector('.calc-preview .calc-row').classList.add('four-cols');
+    document.getElementById('personInterest').value = '';
+  } else if (source === 'person') {
+    appRow.style.display = 'none';
+    personRow.style.display = '';
+    prevProfitItem.style.display = '';
+    prevProfitLabel.textContent = 'Net Profit';
+    prevProfitLabel.style.color = 'var(--indigo)';
+    prevProfitVal.style.color = 'var(--indigo)';
+    document.querySelector('.calc-preview .calc-row').classList.add('four-cols');
     document.getElementById('appInterest').value = '';
+  } else {
+    appRow.style.display = 'none';
+    personRow.style.display = 'none';
+    prevProfitItem.style.display = 'none';
+    document.querySelector('.calc-preview .calc-row').classList.remove('four-cols');
+    document.getElementById('appInterest').value = '';
+    document.getElementById('personInterest').value = '';
   }
   autoCalc();
 }
@@ -1932,9 +1947,15 @@ function autoCalc() {
     document.getElementById('prevRate').textContent = rate > 0 ? rate.toFixed(4) + '%' : '0.00%';
   }
 
-  const isAppMoney = document.getElementById('isAppMoney').checked;
-  const appInterest = isAppMoney ? (parseFloat(document.getElementById('appInterest').value) || 0) : 0;
-  const realProfit = interest - appInterest;
+  const fundingSource = document.querySelector('input[name="fundingSource"]:checked')?.value || 'self';
+  let realProfit = interest;
+  if (fundingSource === 'app') {
+    const appInterest = parseFloat(document.getElementById('appInterest').value) || 0;
+    realProfit = interest - appInterest;
+  } else if (fundingSource === 'person') {
+    const personInterest = parseFloat(document.getElementById('personInterest').value) || 0;
+    realProfit = interest - personInterest;
+  }
 
   const total = principal + interest;
   document.getElementById('prevInterest').textContent = fmtCur(interest);
@@ -1965,9 +1986,16 @@ function openModal(rec = null) {
     document.getElementById('interestAmount').value = rec.interestAmount || '';
 
     const isApp = rec.isAppMoney === 'true' || rec.isAppMoney === true;
-    document.getElementById('isAppMoney').checked = isApp;
+    const isPerson = rec.isPersonMoney === 'true' || rec.isPersonMoney === true;
+    let source = 'self';
+    if (isApp) source = 'app';
+    else if (isPerson) source = 'person';
+    const fundRadio = document.querySelector(`input[name="fundingSource"][value="${source}"]`);
+    if (fundRadio) fundRadio.checked = true;
+    
     document.getElementById('appInterest').value = isApp ? (rec.appInterest || '') : '';
-    toggleAppMoneyRow();
+    document.getElementById('personInterest').value = isPerson ? (rec.personInterest || '') : '';
+    toggleFundingFields();
 
     if (rt === 'both') {
       document.getElementById('rateMonthly').value = rec.rateMonthly || '';
@@ -1980,8 +2008,9 @@ function openModal(rec = null) {
   } else {
     // Default to Per Month
     document.getElementById('rtMonth').checked = true;
-    document.getElementById('isAppMoney').checked = false;
-    toggleAppMoneyRow();
+    const fundRadio = document.querySelector(`input[name="fundingSource"][value="self"]`);
+    if (fundRadio) fundRadio.checked = true;
+    toggleFundingFields();
     onRateTypeChange();
     setDefaultDates();
     autoCalc();
@@ -2033,8 +2062,11 @@ async function handleSubmit(e) {
     toast('To Date must be after From Date.', 'error'); return;
   }
 
-  const isAppMoney = document.getElementById('isAppMoney').checked;
+  const fundingSource = document.querySelector('input[name="fundingSource"]:checked')?.value || 'self';
+  const isAppMoney = fundingSource === 'app';
+  const isPersonMoney = fundingSource === 'person';
   const appInterest = isAppMoney ? (parseFloat(document.getElementById('appInterest').value) || 0) : 0;
+  const personInterest = isPersonMoney ? (parseFloat(document.getElementById('personInterest').value) || 0) : 0;
 
   const payload = {
     action:         editingId ? 'edit' : 'add',
@@ -2052,6 +2084,8 @@ async function handleSubmit(e) {
     totalAmount:    totalAmount.toFixed(2),
     isAppMoney:     isAppMoney ? 'true' : 'false',
     appInterest:    appInterest.toFixed(2),
+    isPersonMoney:  isPersonMoney ? 'true' : 'false',
+    personInterest: personInterest.toFixed(2),
     status:         editingId ? (allRecords.find(r => r.id === editingId)?.status || 'Unpaid') : 'Unpaid'
   };
 
@@ -2153,22 +2187,42 @@ function renderTable() {
     }
 
     const isApp = r.isAppMoney === 'true' || r.isAppMoney === true;
+    const isPerson = r.isPersonMoney === 'true' || r.isPersonMoney === true;
     const appInt = isApp ? (parseFloat(r.appInterest) || 0) : 0;
-    const realProfit = liveInterest - appInt;
+    const personInt = isPerson ? (parseFloat(r.personInterest) || 0) : 0;
+    const realProfit = liveInterest - appInt - personInt;
+
+    let trClass = '';
+    if (isApp) trClass = 'row-app-money';
+    else if (isPerson) trClass = 'row-person-money';
+
+    let nameBadge = '';
+    if (isApp) {
+      nameBadge = `<span class="app-money-tag" title="Funded via App's Money"><i class="fas fa-mobile-alt"></i> App</span>`;
+    } else if (isPerson) {
+      nameBadge = `<span class="person-money-tag" title="Funded via Person's Money"><i class="fas fa-user"></i> Person</span>`;
+    }
+
+    let profitSub = '';
+    if (isApp) {
+      profitSub = `<div class="real-profit-sub" title="Net Profit">Net: ₹${fmtNum(realProfit)}</div>`;
+    } else if (isPerson) {
+      profitSub = `<div class="real-profit-sub" style="color:var(--indigo)" title="Net Profit">Net: ₹${fmtNum(realProfit)}</div>`;
+    }
 
     return `
-    <tr class="${isApp ? 'row-app-money' : ''}">
+    <tr class="${trClass}">
       <td class="td-num">${i + 1}</td>
       <td class="td-name">
         ${overdue ? `<span class="overdue-dot" title="Overdue"></span>` : ''}
         ${esc(r.senderName)}
-        ${isApp ? `<span class="app-money-tag" title="Funded via App's Money"><i class="fas fa-mobile-alt"></i> App</span>` : ''}
+        ${nameBadge}
       </td>
       <td class="td-amt td-blue">₹${fmtNum(r.principal)}</td>
       <td>${formatRateCell(r)}</td>
       <td class="td-amt td-amber">
         ₹${fmtNum(liveInterest)}
-        ${isApp ? `<div class="real-profit-sub" title="Real Profit (Interest - App Interest)">Real: ₹${fmtNum(realProfit)}</div>` : ''}
+        ${profitSub}
       </td>
       <td>${fmtDate(r.fromDate)}</td>
       <td>${fmtDate(liveToDate)}${overdue ? ' <i class="fas fa-bolt" style="color:var(--warning);font-size:10px" title="Live update"></i>' : ''}</td>
@@ -2219,16 +2273,36 @@ function renderTable() {
     }
 
     const isApp = r.isAppMoney === 'true' || r.isAppMoney === true;
+    const isPerson = r.isPersonMoney === 'true' || r.isPersonMoney === true;
     const appInt = isApp ? (parseFloat(r.appInterest) || 0) : 0;
-    const realProfit = liveInterest - appInt;
+    const personInt = isPerson ? (parseFloat(r.personInterest) || 0) : 0;
+    const realProfit = liveInterest - appInt - personInt;
+
+    let cardClass = 'mobile-card';
+    if (isApp) cardClass = 'mobile-card card-app-money';
+    else if (isPerson) cardClass = 'mobile-card card-person-money';
+
+    let nameBadge = '';
+    if (isApp) {
+      nameBadge = `<span class="app-money-tag" title="Funded via App's Money"><i class="fas fa-mobile-alt"></i> App</span>`;
+    } else if (isPerson) {
+      nameBadge = `<span class="person-money-tag" title="Funded via Person's Money"><i class="fas fa-user"></i> Person</span>`;
+    }
+
+    let profitSub = '';
+    if (isApp) {
+      profitSub = `<div class="real-profit-sub" style="margin-top:1px" title="Net Profit">Net: ₹${fmtNum(realProfit)}</div>`;
+    } else if (isPerson) {
+      profitSub = `<div class="real-profit-sub" style="margin-top:1px; color:var(--indigo)" title="Net Profit">Net: ₹${fmtNum(realProfit)}</div>`;
+    }
 
     return `
-    <div class="mobile-card ${isApp ? 'card-app-money' : ''}">
+    <div class="${cardClass}">
       <div class="mc-header">
         <div class="mc-name">
           ${overdue ? `<span class="overdue-dot" title="Overdue"></span>` : ''}
           ${esc(r.senderName)}
-          ${isApp ? `<span class="app-money-tag" title="Funded via App's Money"><i class="fas fa-mobile-alt"></i> App</span>` : ''}
+          ${nameBadge}
         </div>
         <button class="badge ${paid ? 'badge-paid' : 'badge-unpaid'}"
           onclick="toggleStatus('${r.id}','${r.status}')" title="Tap to toggle">
@@ -2245,7 +2319,7 @@ function renderTable() {
           <span class="mc-label">Interest</span>
           <span class="mc-val amber">
             ₹${fmtNum(liveInterest)}
-            ${isApp ? `<div class="real-profit-sub" style="margin-top:1px" title="Real Profit">Real: ₹${fmtNum(realProfit)}</div>` : ''}
+            ${profitSub}
           </span>
         </div>
         <div class="mc-cell">
@@ -2343,18 +2417,25 @@ function updateDash() {
     return s + (isApp ? (parseFloat(r.appInterest) || 0) : 0);
   }, 0);
 
-  const expectedRealProfit = totalBorrowerInterest - totalAppInterest;
+  const totalPersonInterest = unpaid.reduce((s,r) => {
+    const isPerson = r.isPersonMoney === 'true' || r.isPersonMoney === true;
+    return s + (isPerson ? (parseFloat(r.personInterest) || 0) : 0);
+  }, 0);
+
+  const expectedRealProfit = totalBorrowerInterest - totalAppInterest - totalPersonInterest;
   const sumT = sumP + totalBorrowerInterest;
 
   animNum('statPrincipal', sumP,   true);
   animNum('statInterest',  expectedRealProfit,   true);
   animNum('statAppInterest', totalAppInterest, true);
+  animNum('statPersonInterest', totalPersonInterest, true);
   animNum('statTotal',     sumT,   true);
   document.getElementById('statActive').textContent = unpaid.length;
 
-  document.getElementById('statInterestMeta').innerHTML = totalAppInterest > 0
-    ? `Gross: ₹${fmtNum(totalBorrowerInterest)} | App Int: ₹${fmtNum(totalAppInterest)}`
-    : `Gross interest from unpaid records`;
+  let metaParts = [`Gross: ₹${fmtNum(totalBorrowerInterest)}`];
+  if (totalAppInterest > 0) metaParts.push(`App: ₹${fmtNum(totalAppInterest)}`);
+  if (totalPersonInterest > 0) metaParts.push(`Person: ₹${fmtNum(totalPersonInterest)}`);
+  document.getElementById('statInterestMeta').innerHTML = metaParts.join(' | ');
 }
 
 function animNum(id, target, currency) {
@@ -2373,11 +2454,12 @@ function animNum(id, target, currency) {
 // ── Export CSV ────────────────────────────────────────────────
 function exportCSV() {
   if (!allRecords.length) { toast('No records to export.', 'warning'); return; }
-  const hdr  = ['ID','Sender Name','Principal','Interest Rate %','Interest Amount','From Date','To Date','Days','Total Amount','Status','Is App Money','App Interest'];
+  const hdr  = ['ID','Sender Name','Principal','Interest Rate %','Interest Amount','From Date','To Date','Days','Total Amount','Status','Is App Money','App Interest','Is Person Money','Person Interest'];
   const rows = allRecords.map(r => [
     r.id, r.senderName, r.principal, r.interestRate,
     r.interestAmount, r.fromDate, r.toDate, r.numDays, r.totalAmount, r.status,
-    r.isAppMoney || 'false', r.appInterest || '0.00'
+    r.isAppMoney || 'false', r.appInterest || '0.00',
+    r.isPersonMoney || 'false', r.personInterest || '0.00'
   ]);
   const csv  = [hdr, ...rows].map(row => row.map(v => `"${v ?? ''}"`).join(',')).join('\n');
   const a    = Object.assign(document.createElement('a'), {
@@ -2452,18 +2534,25 @@ function renderWallet() {
     return s + (isApp ? (parseFloat(r.appInterest) || 0) : 0);
   }, 0);
 
-  const realProfit = grossInterest - appInterestPaid;
+  const personInterestPaid = paid.reduce((s,r) => {
+    const isPerson = r.isPersonMoney === 'true' || r.isPersonMoney === true;
+    return s + (isPerson ? (parseFloat(r.personInterest) || 0) : 0);
+  }, 0);
+
+  const realProfit = grossInterest - appInterestPaid - personInterestPaid;
   const sumT = sumP + grossInterest;
   
   animNum('walletProfit', realProfit, true);
   animNum('walletAppInterest', appInterestPaid, true);
+  animNum('walletPersonInterest', personInterestPaid, true);
   animNum('walletPrincipal', sumP, true);
   animNum('walletTotal', sumT, true);
   document.getElementById('walletPaidCount').textContent = paid.length;
 
-  document.getElementById('walletProfitMeta').innerHTML = appInterestPaid > 0
-    ? `Gross: ₹${fmtNum(grossInterest)} | App Int: ₹${fmtNum(appInterestPaid)}`
-    : `Interest collected from paid records`;
+  let metaParts = [`Gross: ₹${fmtNum(grossInterest)}`];
+  if (appInterestPaid > 0) metaParts.push(`App: ₹${fmtNum(appInterestPaid)}`);
+  if (personInterestPaid > 0) metaParts.push(`Person: ₹${fmtNum(personInterestPaid)}`);
+  document.getElementById('walletProfitMeta').innerHTML = metaParts.join(' | ');
   
   // Graph logic
   const profitByMonth = {};
@@ -2473,8 +2562,10 @@ function renderWallet() {
     if (isNaN(d)) return;
     const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
     const isApp = r.isAppMoney === 'true' || r.isAppMoney === true;
+    const isPerson = r.isPersonMoney === 'true' || r.isPersonMoney === true;
     const appInt = isApp ? (parseFloat(r.appInterest) || 0) : 0;
-    const itemProfit = (parseFloat(r.interestAmount) || 0) - appInt;
+    const personInt = isPerson ? (parseFloat(r.personInterest) || 0) : 0;
+    const itemProfit = (parseFloat(r.interestAmount) || 0) - appInt - personInt;
     profitByMonth[key] = (profitByMonth[key] || 0) + itemProfit;
   });
   

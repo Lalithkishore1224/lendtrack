@@ -33,9 +33,10 @@ const COL = {
   ID: 0, SENDER: 1, PRINCIPAL: 2, RATE: 3, INTEREST: 4,
   FROM: 5, TO: 6, DAYS: 7, TOTAL: 8, STATUS: 9,
   RATE_TYPE: 10, RATE_MONTHLY: 11, RATE_DAILY: 12,
-  IS_APP_MONEY: 13, APP_INTEREST: 14
+  IS_APP_MONEY: 13, APP_INTEREST: 14,
+  IS_PERSON_MONEY: 15, PERSON_INTEREST: 16
 };
-const TOTAL_COLS = 15;
+const TOTAL_COLS = 17;
 
 // ── Sheet helper ──────────────────────────────────────────────
 function getSheet() {
@@ -49,7 +50,8 @@ function getSheet() {
       'Interest Amount (₹)', 'From Date', 'To Date',
       'Days', 'Total Amount (₹)', 'Status',
       'Rate Type', 'Monthly Rate (%)', 'Daily Rate (%)',
-      'Is App Money', 'App Interest (₹)'
+      'Is App Money', 'App Interest (₹)',
+      'Is Person Money', 'Person Interest (₹)'
     ];
     sheet.appendRow(headers);
 
@@ -76,6 +78,8 @@ function getSheet() {
     sheet.setColumnWidth(13, 110); // Daily Rate
     sheet.setColumnWidth(14, 110); // Is App Money
     sheet.setColumnWidth(15, 120); // App Interest
+    sheet.setColumnWidth(16, 120); // Is Person Money
+    sheet.setColumnWidth(17, 130); // Person Interest
   }
 
   return sheet;
@@ -157,7 +161,9 @@ function getAllRecords() {
       rateMonthly:    String(row[COL.RATE_MONTHLY] || '0'),
       rateDaily:      String(row[COL.RATE_DAILY]   || '0'),
       isAppMoney:     String(row[COL.IS_APP_MONEY]  || 'false'),
-      appInterest:    String(row[COL.APP_INTEREST]  || '0')
+      appInterest:    String(row[COL.APP_INTEREST]  || '0'),
+      isPersonMoney:  String(row[COL.IS_PERSON_MONEY] || 'false'),
+      personInterest: String(row[COL.PERSON_INTEREST] || '0')
     }));
 
   return { records };
@@ -241,7 +247,9 @@ function buildRow(data) {
     parseFloat(data.rateMonthly)   || 0,
     parseFloat(data.rateDaily)     || 0,
     data.isAppMoney  || 'false',
-    parseFloat(data.appInterest)    || 0
+    parseFloat(data.appInterest)    || 0,
+    data.isPersonMoney || 'false',
+    parseFloat(data.personInterest) || 0
   ];
 }
 
@@ -256,7 +264,7 @@ function applyRowStyles(sheet, rowNum) {
 
   // Alternate row background
   const bg = (rowNum % 2 === 0) ? '#f8fafc' : '#ffffff';
-  sheet.getRange(rowNum, 1, 1, TOTAL_COLS - 1).setBackground(bg);
+  sheet.getRange(rowNum, 1, 1, TOTAL_COLS).setBackground(bg);
 }
 
 function fmtDate(val) {
