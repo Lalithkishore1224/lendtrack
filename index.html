@@ -1796,6 +1796,10 @@ function calcInterest(p, r, d, type, fromVal, toVal) {
     const { months, days } = exactMonthsAndDays(fromVal, toVal);
     return (p * (r / 100) * months) + (p * (r / 100) * (days / 30));
   }
+  // Daily: treat r as amount per day
+  if (type === 'daily') {
+    return r * d;
+  }
   if (!d) return 0;
   const div = RATE_DIV[type] || 30;
   return (p * (r / 100) * d) / div;
