@@ -1,0 +1,2564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LendTrack Pro — Interest & Lending Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%230d9488'/><circle cx='50' cy='50' r='38' fill='none' stroke='white' stroke-width='3' stroke-dasharray='6 3'/><text x='50' y='65' font-family='system-ui, -apple-system, sans-serif' font-size='45' font-weight='900' fill='white' text-anchor='middle'>₹</text></svg>">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Variables ── */
+    :root {
+      --primary:       #2563eb;
+      --primary-dark:  #1d4ed8;
+      --primary-light: #bfdbfe;
+      --primary-50:    #eff6ff;
+      --success:       #10b981;
+      --success-light: #d1fae5;
+      --danger:        #ef4444;
+      --danger-light:  #fee2e2;
+      --warning:       #f59e0b;
+      --warning-light: #fef3c7;
+      --purple:        #0d9488;
+      --purple-light:  #f0fdfa;
+      --gray-50:  #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+      --gray-900: #0f172a;
+      --white: #ffffff;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0/0.05);
+      --shadow:    0 1px 3px 0 rgb(0 0 0/0.1), 0 1px 2px -1px rgb(0 0 0/0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0/0.1), 0 2px 4px -2px rgb(0 0 0/0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0/0.1), 0 4px 6px -4px rgb(0 0 0/0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0/0.15), 0 8px 10px -6px rgb(0 0 0/0.1);
+      --radius-sm: 6px;
+      --radius:    10px;
+      --radius-lg: 14px;
+      --radius-xl: 20px;
+      --transition: all 0.2s ease;
+    }
+
+    body.dark-mode {
+      --gray-50:  #000000;
+      --gray-100: #1c1c1f;
+      --gray-200: #29292e;
+      --gray-300: #3b3b40;
+      --gray-400: #55555a;
+      --gray-500: #77777c;
+      --gray-600: #99999f;
+      --gray-700: #bbbbbf;
+      --gray-800: #ddddd2;
+      --gray-900: #ffffff;
+      --white: #0d0d0f;
+      --primary-50: rgba(37, 99, 235, 0.12);
+      --primary-light: #1e3a8a;
+      --purple-light: rgba(45, 212, 191, 0.12);
+      --purple: #2dd4bf;
+      --success-light: rgba(16, 185, 129, 0.12);
+      --danger-light: rgba(239, 68, 68, 0.12);
+      --warning-light: rgba(245, 158, 11, 0.12);
+    }
+
+    /* Scrollbar styles */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--gray-50);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--gray-300);
+      border-radius: var(--radius-sm);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--gray-400);
+    }
+
+
+    /* ── Reset ── */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+      background:var(--gray-50);
+      color:var(--gray-800);
+      line-height:1.5;
+      min-height:100vh;
+    }
+    input, select, button, textarea { font-family:inherit; }
+
+    /* ── Layout ── */
+    .app-layout { display:flex; min-height:100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width:260px;
+      background:var(--white);
+      border-right:1px solid var(--gray-200);
+      display:flex;
+      flex-direction:column;
+      position:fixed;
+      top:0; left:0;
+      height:100vh;
+      z-index:200;
+      transition:transform .3s ease;
+      overflow-y:auto;
+    }
+    .sidebar-logo {
+      padding:22px 18px;
+      border-bottom:1px solid var(--gray-100);
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-shrink:0;
+    }
+    .logo-icon {
+      width:42px; height:42px;
+      background:linear-gradient(135deg,var(--primary),var(--purple));
+      border-radius:var(--radius);
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; font-size:19px;
+      flex-shrink:0;
+    }
+    .logo-text h1 { font-size:15px; font-weight:800; color:var(--gray-900); line-height:1.2; }
+    .logo-text span { font-size:11px; color:var(--gray-400); font-weight:400; }
+
+    .sidebar-nav { flex:1; padding:14px 10px; display:flex; flex-direction:column; gap:2px; }
+    .nav-section-label {
+      font-size:10px; font-weight:700;
+      text-transform:uppercase; letter-spacing:.08em;
+      color:var(--gray-400);
+      padding:10px 10px 4px;
+      margin-top:6px;
+    }
+    .nav-item {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:var(--radius-sm);
+      cursor:pointer;
+      color:var(--gray-600);
+      font-size:13.5px; font-weight:500;
+      transition:var(--transition);
+      text-decoration:none;
+      border:none; background:transparent; width:100%; text-align:left;
+    }
+    .nav-item:hover { background:var(--gray-50); color:var(--primary); }
+    .nav-item.active { background:var(--primary-50); color:var(--primary); }
+    .nav-item i { width:18px; text-align:center; font-size:14px; }
+
+    .sidebar-footer { padding:14px; border-top:1px solid var(--gray-100); flex-shrink:0; }
+    .url-config-box {
+      background:var(--primary-50);
+      border:1px solid var(--primary-light);
+      border-radius:var(--radius);
+      padding:12px;
+    }
+    .url-config-box label {
+      display:block;
+      font-size:11px; font-weight:700;
+      color:var(--primary-dark);
+      margin-bottom:6px;
+    }
+    .url-config-input {
+      width:100%;
+      padding:7px 10px;
+      border:1.5px solid var(--primary-light);
+      border-radius:var(--radius-sm);
+      font-size:11px;
+      background:var(--white);
+      color:var(--gray-700);
+      outline:none;
+      transition:var(--transition);
+    }
+    .url-config-input:focus { border-color:var(--primary); }
+    .url-save-btn {
+      width:100%;
+      margin-top:7px;
+      padding:7px;
+      background:var(--primary);
+      color:#fff;
+      border:none;
+      border-radius:var(--radius-sm);
+      font-size:12px; font-weight:600;
+      cursor:pointer;
+      transition:var(--transition);
+    }
+    .url-save-btn:hover { background:var(--primary-dark); }
+
+    /* ── Sidebar overlay (mobile) ── */
+    .sidebar-overlay {
+      display:none;
+      position:fixed; inset:0;
+      background:rgba(15,23,42,.45);
+      z-index:199;
+      backdrop-filter:blur(2px);
+    }
+    .sidebar-overlay.show { display:block; }
+
+    /* ── Main content ── */
+    .main-content {
+      flex:1; margin-left:260px;
+      display:flex; flex-direction:column;
+      min-height:100vh;
+      transition:margin-left .3s ease;
+    }
+    .main-content.expanded { margin-left:0; }
+    .sidebar.closed { transform:translateX(-100%); }
+
+    /* ── Topbar ── */
+    .topbar {
+      background:var(--white);
+      border-bottom:1px solid var(--gray-200);
+      padding:0 24px; height:64px;
+      display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:100;
+    }
+    .topbar-left { display:flex; align-items:center; gap:14px; }
+    .menu-toggle {
+      display:flex;
+      width:36px; height:36px;
+      border:1px solid var(--gray-200);
+      background:var(--white);
+      border-radius:var(--radius-sm);
+      align-items:center; justify-content:center;
+      cursor:pointer; color:var(--gray-600);
+      font-size:15px;
+      transition:var(--transition);
+    }
+    .menu-toggle:hover { background:var(--gray-50); color:var(--primary); border-color:var(--primary-light); }
+    .page-title { font-size:17px; font-weight:800; color:var(--gray-900); }
+    .topbar-right { display:flex; align-items:center; gap:10px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:9px 18px;
+      border-radius:var(--radius);
+      font-size:13.5px; font-weight:600;
+      cursor:pointer; border:none;
+      transition:var(--transition);
+      white-space:nowrap; text-decoration:none;
+    }
+    .btn-primary { background:var(--primary); color:#fff; }
+    .btn-primary:hover { background:var(--primary-dark); transform:translateY(-1px); box-shadow:var(--shadow-md); }
+    .btn-secondary { background:var(--gray-100); color:var(--gray-700); }
+    .btn-secondary:hover { background:var(--gray-200); }
+    .btn-danger { background:var(--danger-light); color:var(--danger); }
+    .btn-danger:hover { background:var(--danger); color:#fff; }
+    .btn-sm { padding:6px 13px; font-size:12px; }
+    .icon-btn {
+      width:38px; height:38px;
+      border:1px solid var(--gray-200);
+      background:var(--white);
+      border-radius:var(--radius);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; color:var(--gray-600);
+      transition:var(--transition); font-size:14px;
+    }
+    .icon-btn:hover { background:var(--gray-50); color:var(--primary); border-color:var(--primary-light); }
+    .icon-btn.spinning i { animation:spin .8s linear infinite; }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    /* ── Page Content ── */
+    .page-content { flex:1; padding:24px; }
+
+    /* ── Setup Banner ── */
+    .setup-banner {
+      display:none;
+      background:linear-gradient(135deg,var(--primary),var(--purple));
+      border-radius:var(--radius-lg);
+      padding:18px 22px;
+      margin-bottom:22px;
+      align-items:center; gap:16px;
+      color:#fff;
+    }
+    .setup-banner.visible { display:flex; }
+    .setup-banner-icon {
+      width:46px; height:46px;
+      background:rgba(255,255,255,.18);
+      border-radius:var(--radius);
+      display:flex; align-items:center; justify-content:center;
+      font-size:20px; flex-shrink:0;
+    }
+    .setup-banner-body { flex:1; }
+    .setup-banner-body h3 { font-size:15px; font-weight:700; margin-bottom:3px; }
+    .setup-banner-body p { font-size:12.5px; opacity:.85; }
+    .setup-close {
+      width:30px; height:30px;
+      background:rgba(255,255,255,.15); border:none;
+      border-radius:var(--radius-sm);
+      color:#fff; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0; font-size:13px;
+    }
+    .setup-close:hover { background:rgba(255,255,255,.25); }
+
+    /* ── Stat Cards ── */
+    .dashboard-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      gap:16px;
+      margin-bottom:24px;
+    }
+    .stat-card {
+      background:var(--white);
+      border-radius:var(--radius-lg);
+      padding:20px;
+      border:1px solid var(--gray-100);
+      box-shadow:var(--shadow-sm);
+      transition:var(--transition);
+      position:relative; overflow:hidden;
+    }
+    .stat-card:hover { box-shadow:var(--shadow-md); transform:translateY(-1px); }
+    .stat-card::after {
+      content:'';
+      position:absolute; top:-20px; right:-20px;
+      width:90px; height:90px;
+      border-radius:50%;
+      opacity:.07;
+    }
+    .stat-card.blue::after  { background:var(--primary); }
+    .stat-card.green::after { background:var(--success); }
+    .stat-card.amber::after { background:var(--warning); }
+    .stat-card.violet::after { background:var(--purple); }
+
+    .stat-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .stat-label { font-size:12.5px; font-weight:600; color:var(--gray-500); }
+    .stat-badge {
+      width:36px; height:36px;
+      border-radius:var(--radius-sm);
+      display:flex; align-items:center; justify-content:center;
+      font-size:15px;
+    }
+    .stat-badge.blue   { background:var(--primary-50);    color:var(--primary); }
+    .stat-badge.green  { background:var(--success-light); color:var(--success); }
+    .stat-badge.amber  { background:var(--warning-light); color:var(--warning); }
+    .stat-badge.violet { background:var(--purple-light);  color:var(--purple); }
+
+    .stat-value { font-size:24px; font-weight:800; color:var(--gray-900); line-height:1; margin-bottom:5px; }
+    .stat-meta  { font-size:11.5px; color:var(--gray-400); }
+
+    /* ── Table card ── */
+    #tableSection { margin-top:28px; }
+    .section-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .section-title { font-size:18px; font-weight:700; color:var(--gray-900); letter-spacing:-0.015em; }
+    .section-sub   { font-size:12px; color:var(--gray-400); margin-top:2px; }
+
+    .table-card {
+      background:var(--white);
+      border-radius:var(--radius-lg);
+      border:1px solid var(--gray-100);
+      box-shadow:var(--shadow-sm);
+      overflow:hidden;
+    }
+    .table-toolbar {
+      padding:14px 18px;
+      border-bottom:1px solid var(--gray-100);
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .search-wrap { flex:1; min-width:180px; position:relative; }
+    .search-wrap i {
+      position:absolute; left:12px; top:50%; transform:translateY(-50%);
+      color:var(--gray-400); font-size:13px; pointer-events:none;
+    }
+    .search-input {
+      width:100%;
+      padding:9px 12px 9px 34px;
+      border:1.5px solid var(--gray-200);
+      border-radius:var(--radius);
+      font-size:13px; color:var(--gray-700);
+      background:var(--gray-50);
+      outline:none; transition:var(--transition);
+    }
+    .search-input:focus { border-color:var(--primary); background:var(--white); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .filter-sel {
+      padding:9px 12px;
+      border:1.5px solid var(--gray-200);
+      border-radius:var(--radius);
+      font-size:13px; color:var(--gray-700);
+      background:var(--gray-50);
+      outline:none; cursor:pointer; transition:var(--transition);
+    }
+    .filter-sel:focus { border-color:var(--primary); background:var(--white); }
+
+    .tbl-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; }
+    thead tr { background:var(--gray-50); }
+    th {
+      padding:11px 15px;
+      text-align:left;
+      font-size:10.5px; font-weight:700;
+      text-transform:uppercase; letter-spacing:.06em;
+      color:var(--gray-500); white-space:nowrap;
+      border-bottom:1px solid var(--gray-100);
+    }
+    th.sort { cursor:pointer; user-select:none; }
+    th.sort:hover { color:var(--primary); }
+    td {
+      padding:13px 15px;
+      font-size:13.5px; color:var(--gray-700);
+      border-bottom:1px solid var(--gray-50);
+    }
+    tbody tr:last-child td { border-bottom:none; }
+    tbody tr:hover { background:var(--primary-50); }
+    .td-name   { font-weight:700; color:var(--gray-900); }
+    .td-amt    { font-variant-numeric:tabular-nums; font-weight:600; }
+    .td-blue   { color:var(--primary); }
+    .td-amber  { color:var(--warning); }
+    .td-bold   { color:var(--gray-900); }
+    .td-num    { color:var(--gray-500); font-size:12px; }
+
+    .badge {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:4px 11px;
+      border-radius:100px;
+      font-size:11.5px; font-weight:700;
+      cursor:pointer; transition:var(--transition);
+      border:none; font-family:inherit;
+    }
+    .badge-paid   { background:var(--success-light); color:var(--success); }
+    .badge-unpaid { background:var(--danger-light);  color:var(--danger); }
+    .badge:hover  { opacity:.8; transform:scale(.97); }
+
+    .act-wrap { display:flex; gap:6px; }
+    .act-btn {
+      width:30px; height:30px; border:none;
+      border-radius:var(--radius-sm);
+      cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      font-size:12px; transition:var(--transition);
+    }
+    .act-edit   { background:var(--primary-50);   color:var(--primary); }
+    .act-edit:hover   { background:var(--primary);   color:#fff; }
+    .act-delete { background:var(--danger-light);  color:var(--danger);  }
+    .act-delete:hover { background:var(--danger);  color:#fff; }
+
+    .overdue-dot {
+      width:7px; height:7px;
+      background:var(--danger);
+      border-radius:50%;
+      display:inline-block; margin-right:5px;
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .empty-state { padding:56px 20px; text-align:center; }
+    .empty-state i { font-size:44px; color:var(--gray-300); margin-bottom:14px; display:block; }
+    .empty-state h3 { font-size:15px; font-weight:600; color:var(--gray-600); margin-bottom:6px; }
+    .empty-state p  { font-size:13px; color:var(--gray-400); }
+
+    .table-foot {
+      padding:11px 18px;
+      border-top:1px solid var(--gray-100);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .table-count { font-size:12.5px; color:var(--gray-500); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position:fixed; inset:0;
+      background:rgba(15,23,42,.55);
+      backdrop-filter:blur(5px);
+      z-index:500;
+      display:flex; align-items:center; justify-content:center;
+      padding:20px;
+      opacity:0; visibility:hidden;
+      transition:all .3s ease;
+    }
+    .modal-overlay.show { opacity:1; visibility:visible; }
+    .modal {
+      background:var(--white);
+      border-radius:var(--radius-xl);
+      width:100%; max-width:610px;
+      max-height:92vh; overflow-y:auto;
+      box-shadow:var(--shadow-xl);
+      transform:scale(.95) translateY(12px);
+      transition:transform .3s ease;
+    }
+    .modal-overlay.show .modal { transform:scale(1) translateY(0); }
+    .modal-hd {
+      padding:24px 24px 0;
+      display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; background:var(--white); z-index:1;
+      padding-bottom:16px;
+      border-bottom:1px solid var(--gray-100);
+    }
+    .modal-title { font-size:17px; font-weight:800; color:var(--gray-900); }
+    .modal-close {
+      width:36px; height:36px; border:none;
+      background:var(--gray-100); border-radius:var(--radius-sm);
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+      color:var(--gray-500); font-size:15px; transition:var(--transition);
+    }
+    .modal-close:hover { background:var(--gray-200); color:var(--gray-700); }
+    .modal-body { padding:22px 24px; }
+    .modal-foot {
+      padding:0 24px 22px;
+      display:flex; gap:10px; justify-content:flex-end;
+      border-top:1px solid var(--gray-100);
+      padding-top:16px;
+    }
+
+    /* ── Form ── */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .fg { display:flex; flex-direction:column; gap:6px; }
+    .fg.span2 { grid-column:1/-1; }
+    .form-label { font-size:12.5px; font-weight:700; color:var(--gray-700); }
+    .req { color:var(--danger); }
+    .form-hint { font-size:11px; color:var(--gray-400); }
+
+    .input-wrap { position:relative; }
+    .input-pre {
+      position:absolute; left:12px; top:50%; transform:translateY(-50%);
+      color:var(--gray-400); font-size:13px; font-weight:600; pointer-events:none;
+    }
+    .input-suf {
+      position:absolute; right:12px; top:50%; transform:translateY(-50%);
+      color:var(--gray-400); font-size:12px; pointer-events:none;
+    }
+    .has-pre .form-input { padding-left:26px; }
+    .has-suf .form-input { padding-right:30px; }
+
+    .form-input {
+      width:100%; padding:10px 14px;
+      border:1.5px solid var(--gray-200);
+      border-radius:var(--radius);
+      font-size:13.5px; color:var(--gray-800);
+      background:var(--white); outline:none;
+      transition:var(--transition);
+    }
+    .form-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .form-input.auto { background:var(--primary-50); border-color:var(--primary-light); color:var(--primary-dark); font-weight:600; }
+    .form-input:disabled { background:var(--gray-50); color:var(--gray-400); cursor:not-allowed; }
+
+    /* ── Rate Type Toggle ── */
+    .rate-type-toggle {
+      display:flex; gap:0;
+      border:1.5px solid var(--gray-200);
+      border-radius:var(--radius);
+      overflow:hidden;
+      background:var(--gray-50);
+    }
+    .rate-type-toggle input[type=radio] { display:none; }
+    .rate-type-toggle label {
+      flex:1; text-align:center;
+      padding:9px 10px;
+      font-size:12px; font-weight:700;
+      color:var(--gray-500);
+      cursor:pointer;
+      transition:var(--transition);
+      user-select:none;
+      border-right:1px solid var(--gray-200);
+      display:flex; align-items:center; justify-content:center; gap:5px;
+    }
+    .rate-type-toggle label:last-of-type { border-right:none; }
+    .rate-type-toggle input[type=radio]:checked + label {
+      background:var(--primary);
+      color:#fff;
+    }
+    .rate-type-toggle input[type=radio]#rtMonth:checked + label { background:var(--primary); }
+    .rate-type-toggle input[type=radio]#rtDay:checked   + label { background:var(--purple); }
+    .rate-type-toggle input[type=radio]#rtBoth:checked  + label { background:linear-gradient(90deg,var(--primary),var(--purple)); color:#fff;}
+
+    .dual-rate-row {
+      display:none;
+      grid-column:1/-1;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+    .dual-rate-row.show { display:grid; }
+
+    /* Calc Preview */
+    .calc-preview {
+      grid-column:1/-1;
+      background:linear-gradient(135deg,var(--primary-50),#faf5ff);
+      border:1.5px solid var(--primary-light);
+      border-radius:var(--radius-lg);
+      padding:16px 18px;
+    }
+    .calc-preview-hd {
+      font-size:11px; font-weight:800;
+      text-transform:uppercase; letter-spacing:.07em;
+      color:var(--primary);
+      margin-bottom:12px;
+    }
+    .calc-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .calc-item { text-align:center; }
+    .calc-item-label { font-size:11px; color:var(--gray-500); margin-bottom:4px; }
+    .calc-item-val { font-size:17px; font-weight:800; color:var(--gray-900); }
+    .calc-item-val.accent { color:var(--primary); }
+
+    /* ── Confirm dialog ── */
+    .confirm-overlay {
+      position:fixed; inset:0;
+      background:rgba(15,23,42,.55); backdrop-filter:blur(5px);
+      z-index:600;
+      display:flex; align-items:center; justify-content:center;
+      padding:20px;
+      opacity:0; visibility:hidden; transition:all .2s;
+    }
+    .confirm-overlay.show { opacity:1; visibility:visible; }
+    .confirm-box {
+      background:var(--white); border-radius:var(--radius-lg);
+      padding:30px 28px;
+      max-width:380px; width:100%;
+      box-shadow:var(--shadow-xl); text-align:center;
+    }
+    .confirm-icon {
+      width:56px; height:56px;
+      background:var(--danger-light); border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      margin:0 auto 16px;
+      color:var(--danger); font-size:22px;
+    }
+    .confirm-box h3 { font-size:17px; font-weight:800; color:var(--gray-900); margin-bottom:8px; }
+    .confirm-box p  { font-size:13px; color:var(--gray-500); margin-bottom:22px; }
+    .confirm-btns { display:flex; gap:10px; }
+    .confirm-btns .btn { flex:1; justify-content:center; }
+
+    /* ── Toast ── */
+    #toastContainer {
+      position:fixed; bottom:22px; right:22px; z-index:9999;
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .toast {
+      display:flex; align-items:center; gap:10px;
+      padding:12px 16px;
+      background:var(--white); border-radius:var(--radius);
+      color:var(--gray-800);
+      box-shadow:var(--shadow-lg);
+      border-left:3px solid var(--primary);
+      min-width:270px; font-size:13.5px;
+      animation:toastIn .3s ease;
+    }
+    @keyframes toastIn { from{transform:translateX(110%);opacity:0} to{transform:translateX(0);opacity:1} }
+    .toast.success { border-left-color:var(--success); }
+    .toast.error   { border-left-color:var(--danger); }
+    .toast.warning { border-left-color:var(--warning); }
+    .toast i.ti { font-size:16px; }
+    .toast.success i.ti { color:var(--success); }
+    .toast.error   i.ti { color:var(--danger); }
+    .toast.warning i.ti { color:var(--warning); }
+    .toast:not(.success):not(.error):not(.warning) i.ti { color:var(--primary); }
+
+    /* ── Loading ── */
+    #loadingOverlay {
+      position:fixed; inset:0;
+      background:rgba(255,255,255,.75);
+      z-index:9998; display:flex; align-items:center; justify-content:center;
+      opacity:0; visibility:hidden; transition:all .2s;
+    }
+    #loadingOverlay.show { opacity:1; visibility:visible; }
+    .spinner {
+      width:38px; height:38px;
+      border:3px solid var(--gray-200);
+      border-top-color:var(--primary);
+      border-radius:50%;
+      animation:spin .75s linear infinite;
+    }
+    body.dark-mode #loadingOverlay {
+      background:rgba(0,0,0,.75);
+    }
+
+    /* ── Sidebar close btn ── */
+    .sidebar-close {
+      display:flex;
+      position:absolute; top:14px; right:14px;
+      width:32px; height:32px;
+      border:none; background:var(--gray-100);
+      border-radius:var(--radius-sm);
+      cursor:pointer;
+      align-items:center; justify-content:center;
+      color:var(--gray-500); font-size:14px;
+      transition:var(--transition);
+      z-index:10;
+      flex-shrink:0;
+    }
+    .sidebar-close:hover { background:var(--gray-200); color:var(--gray-700); }
+
+    /* ── Mobile cards (hidden on desktop) ── */
+    .mobile-cards { display:none; }
+    .mobile-card {
+      background:var(--white);
+      border:1px solid var(--gray-100);
+      border-radius:var(--radius-lg);
+      padding:16px;
+      margin-bottom:10px;
+      box-shadow:var(--shadow-sm);
+      position:relative;
+    }
+    .mc-header {
+      display:flex; align-items:center;
+      justify-content:space-between;
+      margin-bottom:12px;
+    }
+    .mc-name {
+      font-size:15px; font-weight:800;
+      color:var(--gray-900);
+      display:flex; align-items:center; gap:6px;
+    }
+    .mc-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:10px; margin-bottom:12px;
+    }
+    .mc-cell { display:flex; flex-direction:column; gap:2px; }
+    .mc-label {
+      font-size:10px; font-weight:700;
+      text-transform:uppercase; letter-spacing:.06em;
+      color:var(--gray-400);
+    }
+    .mc-val { font-size:13.5px; font-weight:600; color:var(--gray-800); }
+    .mc-val.blue  { color:var(--primary); }
+    .mc-val.amber { color:var(--warning); }
+    .mc-val.bold  { color:var(--gray-900); font-weight:800; }
+    .mc-footer {
+      display:flex; align-items:center;
+      justify-content:space-between;
+      padding-top:10px;
+      border-top:1px solid var(--gray-100);
+    }
+    .mc-actions { display:flex; gap:8px; }
+
+    /* ── Wallet View ── */
+    .wallet-view { display: none; }
+    .wallet-view.active { display: block; }
+    .dashboard-view { display: none; }
+    .dashboard-view.active { display: block; }
+
+    .chart-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      border: 1px solid var(--gray-100);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+    }
+    .chart-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      height: 200px;
+      margin-top: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--gray-200);
+      position: relative;
+      justify-content: space-around;
+    }
+    .chart-bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+      position: relative;
+    }
+    .chart-bar {
+      width: 100%;
+      max-width: 40px;
+      background: linear-gradient(to top, var(--primary), var(--primary-light));
+      border-radius: 4px 4px 0 0;
+      transition: height 0.5s ease;
+      min-height: 2px;
+    }
+    .chart-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-500);
+      margin-top: 8px;
+    }
+    .chart-val {
+      position: absolute;
+      top: -22px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gray-700);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .chart-bar-wrap:hover .chart-val {
+      opacity: 1;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width:1100px) {
+      .dashboard-grid { grid-template-columns:repeat(2,1fr); }
+    }
+
+    @media (max-width:768px) {
+      .sidebar {
+        transform:translateX(-100%);
+        width:280px;
+        box-shadow:none;
+      }
+      .sidebar.open {
+        transform:translateX(0);
+        box-shadow:var(--shadow-xl);
+      }
+      .sidebar-close { display:flex; }
+      .sidebar-logo { padding-right:52px; }
+      .main-content { margin-left:0; }
+      .menu-toggle { display:flex; }
+
+      /* table hidden, cards shown */
+      .tbl-wrap { display:none; }
+      .mobile-cards { display:block; padding:12px 16px; }
+
+      .dashboard-grid { grid-template-columns:repeat(2,1fr); gap:12px; }
+      .stat-card { padding:16px; }
+      .stat-value { font-size:20px; }
+
+      .form-grid { grid-template-columns:1fr; }
+      .fg.span2 { grid-column:1; }
+      .calc-row { grid-template-columns:repeat(3,1fr); }
+      .page-content { padding:14px; }
+      .topbar { padding:0 14px; height:58px; }
+      .table-toolbar {
+        padding:12px 14px;
+        flex-direction:column;
+        align-items:stretch;
+        gap:8px;
+      }
+      .search-wrap { min-width:unset; }
+
+      /* full-screen modal on mobile */
+      .modal-overlay { padding:0; align-items:flex-end; }
+      .modal {
+        border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+        max-height:94vh;
+        width:100%;
+        max-width:100%;
+      }
+
+      .section-hd {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .section-hd .btn {
+        width: auto;
+      }
+      .topbar-right .btn-primary i + span { display:none; }
+    }
+
+    @media (max-width:480px) {
+      .topbar { padding: 0 12px; height: 56px; }
+      .topbar-right { gap: 6px; }
+      .dashboard-grid { grid-template-columns:1fr 1fr; gap:10px; }
+      .stat-card { padding:14px; }
+      .stat-value { font-size:18px; }
+      .stat-badge { width:30px; height:30px; font-size:13px; }
+      .stat-label { font-size:11.5px; }
+      .stat-meta  { font-size:10.5px; }
+
+      .calc-row { grid-template-columns:1fr; gap:8px; }
+      .topbar-right .btn span { display:none; }
+      .topbar-right .btn { padding:8px 10px; }
+
+      .page-content { padding:10px; }
+      .table-card { border-radius:var(--radius); }
+      .table-foot { flex-direction:column; gap:8px; align-items:flex-start; }
+
+      /* modal tweaks */
+      .modal-hd   { padding:18px 18px 12px; }
+      .modal-body { padding:16px 18px; }
+      .modal-foot { padding:0 18px 18px; padding-top:12px; }
+      .modal-foot .btn { flex:1; justify-content:center; }
+
+      .mc-grid { grid-template-columns:1fr 1fr; }
+    }
+
+    @media (max-width:375px) {
+      .dashboard-grid { grid-template-columns:1fr; }
+      .mc-grid { grid-template-columns:1fr 1fr; }
+      .topbar { height:54px; }
+      .page-title { font-size:15px; }
+    }
+
+    /* ── App's Money Feature Styles ── */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--gray-50);
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      border: 1.5px dashed var(--gray-200);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .toggle-container:has(input:checked) {
+      border-color: var(--purple);
+      background: var(--purple-light);
+    }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--gray-300);
+      transition: .3s;
+      border-radius: 24px;
+    }
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fff;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .toggle-slider {
+      background-color: var(--purple);
+    }
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+    .toggle-label-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    /* Highlight rows and cards */
+    tr.row-app-money {
+      background: rgba(124, 58, 237, 0.03) !important;
+    }
+    tr.row-app-money:hover {
+      background: rgba(124, 58, 237, 0.07) !important;
+    }
+    tr.row-app-money td:first-child {
+      border-left: 4px solid var(--purple);
+    }
+    .mobile-card.card-app-money {
+      border-left: 4px solid var(--purple) !important;
+      background: linear-gradient(135deg, var(--white), rgba(124, 58, 237, 0.03)) !important;
+    }
+
+    .app-money-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--purple);
+      background: var(--purple-light);
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      text-transform: uppercase;
+      vertical-align: middle;
+    }
+    body.dark-mode .app-money-tag {
+      background: rgba(45, 212, 191, 0.15);
+      color: #2dd4bf;
+    }
+
+    .real-profit-sub {
+      font-size: 11px;
+      color: var(--purple);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    body.dark-mode .real-profit-sub {
+      color: #2dd4bf;
+    }
+
+    /* Dynamic columns for preview box */
+    .calc-row.four-cols {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    @media (max-width: 480px) {
+      .calc-row.four-cols {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Premium Uiverse Theme Toggle Switch Styles ── */
+    .theme-switch {
+      font-size: 14px;
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+    .theme-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .theme-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #73C0FC;
+      transition: .4s;
+      border-radius: 30px;
+    }
+    .theme-slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      border-radius: 20px;
+      left: 2px;
+      bottom: 2px;
+      z-index: 2;
+      background-color: #e8e8e8;
+      transition: .4s;
+    }
+    .theme-sun svg {
+      position: absolute;
+      top: 4px;
+      left: 26px;
+      z-index: 1;
+      width: 18px;
+      height: 18px;
+      animation: rotate 15s linear infinite;
+    }
+    .theme-moon svg {
+      fill: #73C0FC;
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      z-index: 1;
+      width: 18px;
+      height: 18px;
+      animation: tilt 5s linear infinite;
+    }
+    @keyframes rotate {
+      0% { transform: rotate(0); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes tilt {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(-10deg); }
+      75% { transform: rotate(10deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .theme-input:checked + .theme-slider {
+      background-color: #183153;
+    }
+    .theme-input:focus + .theme-slider {
+      box-shadow: 0 0 1px #183153;
+    }
+    .theme-input:checked + .theme-slider:before {
+      transform: translateX(22px);
+    }
+  </style>
+</head>
+<body class="dark-mode">
+
+<!-- Loading -->
+<div id="loadingOverlay"><div class="spinner"></div></div>
+
+<!-- Toasts -->
+<div id="toastContainer"></div>
+
+<!-- Confirm Delete -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon"><i class="fas fa-trash-alt"></i></div>
+    <h3>Delete this record?</h3>
+    <p>This will permanently remove the entry from your Google Sheet. This action cannot be undone.</p>
+    <div class="confirm-btns">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn"><i class="fas fa-trash"></i> Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- App Layout -->
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <button class="sidebar-close" onclick="closeSidebar()" title="Close menu">
+      <i class="fas fa-times"></i>
+    </button>
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="fas fa-coins"></i></div>
+      <div class="logo-text">
+        <h1>LendTrack Pro</h1>
+        <span>Interest &amp; Lending Tracker</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Overview</span>
+      <button class="nav-item active" id="navDashboard" onclick="switchView('dashboardView', 'navDashboard'); closeSidebar();">
+        <i class="fas fa-th-large"></i> Dashboard
+      </button>
+      <button class="nav-item" id="navWallet" onclick="switchView('walletView', 'navWallet'); closeSidebar();">
+        <i class="fas fa-wallet"></i> Wallet
+      </button>
+      <button class="nav-item" id="navRecords" onclick="switchView('dashboardView', 'navRecords'); document.getElementById('tableSection').scrollIntoView(); closeSidebar();">
+        <i class="fas fa-list-ul"></i> All Records
+      </button>
+
+      <span class="nav-section-label">Actions</span>
+      <button class="nav-item" onclick="openModal(); closeSidebar();">
+        <i class="fas fa-plus-circle"></i> New Entry
+      </button>
+      <button class="nav-item" onclick="exportCSV(); closeSidebar();">
+        <i class="fas fa-file-csv"></i> Export CSV
+      </button>
+      <button class="nav-item" onclick="refreshData(); closeSidebar();">
+        <i class="fas fa-sync-alt"></i> Refresh Data
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="url-config-box">
+        <label><i class="fas fa-plug" style="margin-right:4px"></i>Apps Script URL</label>
+        <input type="url" class="url-config-input" id="scriptUrlInput"
+          placeholder="https://script.google.com/..." />
+        <button class="url-save-btn" onclick="saveScriptUrl()">
+          <i class="fas fa-check" style="margin-right:5px"></i>Connect
+        </button>
+      </div>
+      <button class="btn btn-secondary" id="installAppBtn" onclick="installApp()" style="display:none; width:100%; margin-top:14px; padding:10px 14px; font-size:13px; justify-content:center; gap:8px;">
+        <i class="fas fa-download"></i> Install App
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <span class="page-title">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <label class="theme-switch" title="Toggle Theme">
+          <span class="theme-sun"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="#ffd43b"><circle r="5" cy="12" cx="12"></circle><path d="m21 13h-1a1 1 0 0 1 0-2h1a1 1 0 0 1 0 2zm-17 0h-1a1 1 0 0 1 0-2h1a1 1 0 0 1 0 2zm13.66-5.66a1 1 0 0 1 -.66-.29 1 1 0 0 1 0-1.41l.71-.71a1 1 0 1 1 1.41 1.41l-.71.71a1 1 0 0 1 -.75.29zm-12.02 12.02a1 1 0 0 1 -.71-.29 1 1 0 0 1 0-1.41l.71-.66a1 1 0 0 1 1.41 1.41l-.71.71a1 1 0 0 1 -.7.24zm6.36-14.36a1 1 0 0 1 -1-1v-1a1 1 0 0 1 2 0v1a1 1 0 0 1 -1 1zm0 17a1 1 0 0 1 -1-1v-1a1 1 0 0 1 2 0v1a1 1 0 0 1 -1 1zm-5.66-14.66a1 1 0 0 1 -.7-.29l-.71-.71a1 1 0 0 1 1.41-1.41l.71.71a1 1 0 0 1 0 1.41 1 1 0 0 1 -.71.29zm12.02 12.02a1 1 0 0 1 -.7-.29l-.66-.71a1 1 0 0 1 1.36-1.36l.71.71a1 1 0 0 1 0 1.41 1 1 0 0 1 -.71.24z"></path></g></svg></span>
+          <span class="theme-moon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="m223.5 32c-123.5 0-223.5 100.3-223.5 224s100 224 223.5 224c60.6 0 115.5-24.2 155.8-63.4 5-4.9 6.3-12.5 3.1-18.7s-10.1-9.7-17-8.5c-9.8 1.7-19.8 2.6-30.1 2.6-96.9 0-175.5-78.8-175.5-176 0-65.8 36-123.1 89.3-153.3 6.1-3.5 9.2-10.5 7.7-17.3s-7.3-11.9-14.3-12.5c-6.3-.5-12.6-.8-19-.8z"></path></svg></span>
+          <input type="checkbox" class="theme-input" id="themeCheckbox" onchange="toggleTheme(this.checked)">
+          <span class="theme-slider"></span>
+        </label>
+        <button class="icon-btn" id="refreshBtn" onclick="refreshData()" title="Refresh">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+        <button class="btn btn-primary" onclick="openModal()">
+          <i class="fas fa-plus"></i><span>Add Entry</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+
+      <!-- Setup Banner -->
+      <div class="setup-banner" id="setupBanner">
+        <div class="setup-banner-icon"><i class="fas fa-plug"></i></div>
+        <div class="setup-banner-body">
+          <h3>Connect Your Google Sheet</h3>
+          <p>Paste your deployed Apps Script URL in the sidebar to start tracking.</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)"
+          onclick="document.getElementById('scriptUrlInput').focus()">
+          Configure
+        </button>
+        <button class="setup-close" onclick="document.getElementById('setupBanner').classList.remove('visible')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Dashboard View -->
+      <div id="dashboardView" class="dashboard-view active">
+        <!-- Stat Cards -->
+      <div class="dashboard-grid">
+        <div class="stat-card blue">
+          <div class="stat-top">
+            <span class="stat-label">Total Principal Lent</span>
+            <div class="stat-badge blue"><i class="fas fa-wallet"></i></div>
+          </div>
+          <div class="stat-value" id="statPrincipal">₹0</div>
+          <div class="stat-meta">Across all active loans</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-top">
+            <span class="stat-label" id="statInterestLabel">Net Profit (Active)</span>
+            <div class="stat-badge green"><i class="fas fa-chart-line"></i></div>
+          </div>
+          <div class="stat-value" id="statInterest">₹0</div>
+          <div class="stat-meta" id="statInterestMeta">Gross interest minus app interest</div>
+        </div>
+        <div class="stat-card violet">
+          <div class="stat-top">
+            <span class="stat-label">App Interest Owed</span>
+            <div class="stat-badge violet"><i class="fas fa-minus-circle"></i></div>
+          </div>
+          <div class="stat-value" id="statAppInterest">₹0</div>
+          <div class="stat-meta">Interest owed to credit apps</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-top">
+            <span class="stat-label">Total Amount Due</span>
+            <div class="stat-badge amber"><i class="fas fa-hand-holding-usd"></i></div>
+          </div>
+          <div class="stat-value" id="statTotal">₹0</div>
+          <div class="stat-meta">Principal + Interest</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-top">
+            <span class="stat-label">Active Loans</span>
+            <div class="stat-badge blue"><i class="fas fa-users"></i></div>
+          </div>
+          <div class="stat-value" id="statActive">0</div>
+          <div class="stat-meta">Unpaid entries</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div id="tableSection">
+        <div class="section-hd">
+          <div>
+            <div class="section-title">Lending Records</div>
+            <div class="section-sub">All transactions with interest details</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openModal()">
+            <i class="fas fa-plus"></i> New Entry
+          </button>
+        </div>
+
+        <div class="table-card">
+          <div class="table-toolbar">
+            <div class="search-wrap">
+              <i class="fas fa-search"></i>
+              <input type="text" class="search-input" id="searchInput"
+                placeholder="Search name, amount…" oninput="filterTable()" />
+            </div>
+            <select class="filter-sel" id="statusFilter" onchange="filterTable()">
+              <option value="">All Status</option>
+              <option value="Unpaid">Unpaid</option>
+              <option value="Paid">Paid</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="sortBy('fromDate')">
+              <i class="fas fa-sort-amount-down"></i> Date
+            </button>
+          </div>
+
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th class="sort" onclick="sortBy('senderName')">Name <i class="fas fa-sort" style="font-size:9px;opacity:.5"></i></th>
+                  <th class="sort" onclick="sortBy('principal')">Principal <i class="fas fa-sort" style="font-size:9px;opacity:.5"></i></th>
+                  <th>Rate %</th>
+                  <th>Interest</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Days</th>
+                  <th class="sort" onclick="sortBy('totalAmount')">Total <i class="fas fa-sort" style="font-size:9px;opacity:.5"></i></th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+            <div class="empty-state" id="emptyState" style="display:none">
+              <i class="fas fa-inbox"></i>
+              <h3>No records found</h3>
+              <p id="emptyMsg">Add your first lending entry to get started.</p>
+            </div>
+          </div>
+
+          <!-- Mobile card view (shown ≤768px) -->
+          <div class="mobile-cards" id="mobileCards"></div>
+
+          <div class="table-foot">
+            <span class="table-count" id="tableCount">0 records</span>
+            <button class="btn btn-secondary btn-sm" onclick="exportCSV()">
+              <i class="fas fa-download"></i> Export CSV
+            </button>
+          </div>
+        </div>
+      </div>
+      </div><!-- /dashboardView -->
+
+      <!-- Wallet View -->
+      <div id="walletView" class="wallet-view">
+        <div class="dashboard-grid">
+          <div class="stat-card green">
+            <div class="stat-top">
+              <span class="stat-label">Net Profit Earned</span>
+              <div class="stat-badge green"><i class="fas fa-coins"></i></div>
+            </div>
+            <div class="stat-value" id="walletProfit">₹0</div>
+            <div class="stat-meta" id="walletProfitMeta">Interest collected minus app interest paid</div>
+          </div>
+          <div class="stat-card violet">
+            <div class="stat-top">
+              <span class="stat-label">App Interest Paid</span>
+              <div class="stat-badge violet"><i class="fas fa-minus-circle"></i></div>
+            </div>
+            <div class="stat-value" id="walletAppInterest">₹0</div>
+            <div class="stat-meta" id="walletAppInterestMeta">Total interest paid to credit apps</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-top">
+              <span class="stat-label">Total Principal Returned</span>
+              <div class="stat-badge blue"><i class="fas fa-undo-alt"></i></div>
+            </div>
+            <div class="stat-value" id="walletPrincipal">₹0</div>
+            <div class="stat-meta">Principal collected</div>
+          </div>
+          <div class="stat-card violet">
+            <div class="stat-top">
+              <span class="stat-label">Total Amount Collected</span>
+              <div class="stat-badge violet"><i class="fas fa-piggy-bank"></i></div>
+            </div>
+            <div class="stat-value" id="walletTotal">₹0</div>
+            <div class="stat-meta">Principal + Interest</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-top">
+              <span class="stat-label">Paid Records</span>
+              <div class="stat-badge amber"><i class="fas fa-check-double"></i></div>
+            </div>
+            <div class="stat-value" id="walletPaidCount">0</div>
+            <div class="stat-meta">Fully settled loans</div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="section-hd" style="margin-bottom:0">
+            <div>
+              <div class="section-title">Month-wise Earned Profit</div>
+              <div class="section-sub">Interest collected over time (by payment date)</div>
+            </div>
+          </div>
+          <div class="chart-container" id="profitChart">
+            <!-- Bars injected by JS -->
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div><!-- /app-layout -->
+
+<!-- Add / Edit Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <h2 class="modal-title" id="modalTitle">New Lending Entry</h2>
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="entryForm" onsubmit="handleSubmit(event)">
+        <input type="hidden" id="editId" />
+        <div class="form-grid">
+
+          <!-- Sender Name -->
+          <div class="fg span2">
+            <label class="form-label">Borrower / Sender Name <span class="req">*</span></label>
+            <input type="text" class="form-input" id="senderName"
+              placeholder="e.g. John Smith" required />
+          </div>
+
+          <!-- Principal -->
+          <div class="fg">
+            <label class="form-label">Principal Amount <span class="req">*</span></label>
+            <div class="input-wrap has-pre">
+              <span class="input-pre">₹</span>
+              <input type="number" class="form-input" id="principal"
+                placeholder="0.00" step="0.01" min="0" required oninput="autoCalc()" />
+            </div>
+          </div>
+
+          <!-- Rate Type Toggle -->
+          <div class="fg span2">
+            <label class="form-label">Interest Rate Type <span class="req">*</span></label>
+            <div class="rate-type-toggle">
+              <input type="radio" name="rateType" id="rtMonth" value="monthly" checked onchange="onRateTypeChange()" />
+              <label for="rtMonth"><i class="fas fa-calendar-alt"></i> Per Month</label>
+              <input type="radio" name="rateType" id="rtDay" value="daily" onchange="onRateTypeChange()" />
+              <label for="rtDay"><i class="fas fa-sun"></i> Per Day</label>
+              <input type="radio" name="rateType" id="rtBoth" value="both" onchange="onRateTypeChange()" />
+              <label for="rtBoth"><i class="fas fa-layer-group"></i> Both</label>
+            </div>
+          </div>
+
+          <!-- Single Rate (Per Month or Per Day) -->
+          <div class="fg" id="singleRateRow">
+            <label class="form-label" id="singleRateLabel">Interest Rate (%)</label>
+            <div class="input-wrap has-suf">
+              <input type="number" class="form-input" id="interestRate"
+                placeholder="e.g. 2" step="0.0001" min="0" oninput="onRateInput()" />
+              <span class="input-suf" id="singleRateSuf">% p.m.</span>
+            </div>
+            <span class="form-hint">Auto-calculated if Interest Amount is filled</span>
+          </div>
+
+          <!-- placeholder to keep grid balanced when single mode -->
+          <div class="fg" id="singleRatePlaceholder"></div>
+
+          <!-- From Date -->
+          <div class="fg">
+            <label class="form-label">From Date <span class="req">*</span></label>
+            <input type="date" class="form-input" id="fromDate" required oninput="autoCalc()" />
+          </div>
+
+          <!-- To Date -->
+          <div class="fg">
+            <label class="form-label">To Date <span class="req">*</span></label>
+            <input type="date" class="form-input" id="toDate" required oninput="autoCalc()" />
+          </div>
+
+          <!-- Dual Rates row (Both mode) -->
+          <div class="dual-rate-row" id="dualRateRow">
+            <div class="fg">
+              <label class="form-label">Monthly Rate (%)</label>
+              <div class="input-wrap has-suf">
+                <input type="number" class="form-input" id="rateMonthly"
+                  placeholder="e.g. 2" step="0.0001" min="0" oninput="onRateInput()" />
+                <span class="input-suf">% p.m.</span>
+              </div>
+            </div>
+            <div class="fg">
+              <label class="form-label">Daily Rate (%)</label>
+              <div class="input-wrap has-suf">
+                <input type="number" class="form-input" id="rateDaily"
+                  placeholder="e.g. 0.1" step="0.0001" min="0" oninput="onRateInput()" />
+                <span class="input-suf">% p.d.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Number of Days -->
+          <div class="fg">
+            <label class="form-label">Number of Days</label>
+            <input type="number" class="form-input auto" id="numDays"
+              placeholder="Auto" min="1" oninput="onDaysInput()" />
+            <span class="form-hint">Auto-filled from dates</span>
+          </div>
+
+          <!-- Interest Amount -->
+          <div class="fg">
+            <label class="form-label">Interest Amount</label>
+            <div class="input-wrap has-pre">
+              <span class="input-pre">₹</span>
+              <input type="number" class="form-input" id="interestAmount"
+                placeholder="Auto" step="0.01" min="0" oninput="onInterestInput()" />
+            </div>
+            <span class="form-hint">Enter manually to compute rate</span>
+          </div>
+
+          <!-- App's Money Toggle -->
+          <div class="fg span2">
+            <div class="toggle-container" onclick="toggleAppMoneyCheckbox()">
+              <label class="toggle-switch" onclick="event.stopPropagation()">
+                <input type="checkbox" id="isAppMoney" onchange="toggleAppMoneyRow()" />
+                <span class="toggle-slider"></span>
+              </label>
+              <div class="toggle-label-group">
+                <span class="form-label">Funded by App's Money</span>
+                <span class="form-hint">Check if this loan was funded via a credit app</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- App Interest Row -->
+          <div class="fg" id="appInterestRow" style="display: none;">
+            <label class="form-label">App Interest Amount <span class="req">*</span></label>
+            <div class="input-wrap has-pre">
+              <span class="input-pre">₹</span>
+              <input type="number" class="form-input" id="appInterest"
+                placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+            </div>
+            <span class="form-hint">The amount of interest charged by the app</span>
+          </div>
+          <div class="fg" id="appInterestPlaceholder" style="display: none;"></div>
+
+          <!-- Live Preview -->
+          <div class="calc-preview">
+            <div class="calc-preview-hd"><i class="fas fa-calculator" style="margin-right:6px"></i>Live Calculation · <span id="prevRateTypeLabel" style="text-transform:none;font-weight:600;opacity:.85">Per Month</span></div>
+            <div class="calc-row">
+              <div class="calc-item">
+                <div class="calc-item-label">Interest Amount</div>
+                <div class="calc-item-val" id="prevInterest">₹0.00</div>
+              </div>
+              <div class="calc-item" id="prevRealProfitItem" style="display: none;">
+                <div class="calc-item-label" style="color:var(--purple)">Real Profit</div>
+                <div class="calc-item-val" id="prevRealProfit" style="color:var(--purple); font-weight:800;">₹0.00</div>
+              </div>
+              <div class="calc-item">
+                <div class="calc-item-label" id="prevRateLabel">Rate (p.m.)</div>
+                <div class="calc-item-val" id="prevRate">0.00%</div>
+              </div>
+              <div class="calc-item">
+                <div class="calc-item-label">Total Amount</div>
+                <div class="calc-item-val accent" id="prevTotal">₹0.00</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="handleSubmit(event)">
+        <i class="fas fa-save"></i> Save Entry
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+// ── Config ──────────────────────────────────────────────────
+const URL_KEY    = 'lendtrack_script_url';
+const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbxscyml2KoJRawJNGscjLPp88W2l_xYxSHT6H3kYwOX7FemZFe8kPlhLdTOovbX_Jbdbw/exec';
+let SCRIPT_URL = localStorage.getItem(URL_KEY) || DEFAULT_URL;
+
+// ── State ────────────────────────────────────────────────────
+let allRecords     = [];
+let filtered       = [];
+let editingId      = null;
+let pendingDelId   = null;
+let sortField      = null;
+let sortDir        = 'asc';
+let lastEditField  = null; // 'rate' | 'interest'
+
+// ── Theme Management ─────────────────────────────────────────
+function toggleTheme(checked) {
+  if (checked) {
+    document.body.classList.add('dark-mode');
+    localStorage.setItem('lendtrack_theme', 'dark');
+  } else {
+    document.body.classList.remove('dark-mode');
+    localStorage.setItem('lendtrack_theme', 'light');
+  }
+}
+
+// ── PWA Installation ─────────────────────────────────────────
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const installBtn = document.getElementById('installAppBtn');
+  if (installBtn) {
+    installBtn.style.display = 'inline-flex';
+  }
+});
+
+async function installApp() {
+  const installBtn = document.getElementById('installAppBtn');
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    console.log('App installed successfully');
+  }
+  deferredPrompt = null;
+  if (installBtn) {
+    installBtn.style.display = 'none';
+  }
+}
+
+// ── Init ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('lendtrack_theme');
+  const isDark = savedTheme !== 'light';
+  if (isDark) {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+  const themeCheckbox = document.getElementById('themeCheckbox');
+  if (themeCheckbox) {
+    themeCheckbox.checked = isDark;
+  }
+
+  const oldDefault = 'https://script.google.com/macros/s/AKfycbyopCJ8FLXY3gF4gTJ5niKPzEO4dEMu1TvC5Eel1-Z0muGrBuTVkqcudp7FriRtBeOHtA/exec';
+  if (localStorage.getItem(URL_KEY) === oldDefault) {
+    localStorage.setItem(URL_KEY, DEFAULT_URL);
+    SCRIPT_URL = DEFAULT_URL;
+  }
+
+  if (SCRIPT_URL) {
+    document.getElementById('scriptUrlInput').value = SCRIPT_URL;
+  } else {
+    document.getElementById('setupBanner').classList.add('visible');
+  }
+  setDefaultDates();
+  fetchRecords();
+
+  // Register PWA Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('Service Worker registered'))
+      .catch((err) => console.error('Service Worker registration failed:', err));
+  }
+});
+
+function setDefaultDates() {
+  const today = new Date();
+  const from  = new Date(today);
+  from.setDate(from.getDate() - 30);
+  document.getElementById('toDate').value   = fmtDateInput(today);
+  document.getElementById('fromDate').value = fmtDateInput(from);
+}
+
+// ── URL Save ─────────────────────────────────────────────────
+function saveScriptUrl() {
+  const val = document.getElementById('scriptUrlInput').value.trim();
+  if (!val) { toast('Please enter a valid URL.', 'error'); return; }
+  SCRIPT_URL = val;
+  localStorage.setItem(URL_KEY, val);
+  document.getElementById('setupBanner').classList.remove('visible');
+  toast('Connected successfully!', 'success');
+  fetchRecords();
+}
+
+// ── Connectivity helpers ──────────────────────────────────────
+let isOnline = navigator.onLine;
+window.addEventListener('online',  () => { isOnline = true;  hideOfflineBanner(); });
+window.addEventListener('offline', () => { isOnline = false; showOfflineBanner(); });
+
+function showOfflineBanner() {
+  let b = document.getElementById('offlineBanner');
+  if (!b) {
+    b = document.createElement('div');
+    b.id = 'offlineBanner';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9990;background:#ef4444;color:#fff;text-align:center;padding:10px 16px;font-size:13.5px;font-weight:600;font-family:Inter,sans-serif';
+    b.innerHTML = '<i class="fas fa-wifi-slash" style="margin-right:8px"></i>No internet connection — changes will not be saved until you reconnect.';
+    document.body.prepend(b);
+  }
+}
+function hideOfflineBanner() {
+  document.getElementById('offlineBanner')?.remove();
+}
+
+async function fetchWithRetry(url, options = {}, retries = 3) {
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url, { redirect: 'follow', ...options });
+      return res;
+    } catch (err) {
+      const isLast = attempt === retries;
+      if (isLast) throw err;
+      await delay(800 * (attempt + 1));
+    }
+  }
+}
+
+// JSONP helper — bypasses CORS for file:// origins
+function jsonpFetch(url) {
+  return new Promise((resolve, reject) => {
+    const cbName = '__lendtrack_cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('JSONP request timed out. Check your Apps Script URL and deployment.'));
+    }, 15000);
+    function cleanup() {
+      clearTimeout(timeout);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+    window[cbName] = function(data) {
+      cleanup();
+      resolve(data);
+    };
+    const sep = url.includes('?') ? '&' : '?';
+    script.src = url + sep + 'callback=' + cbName;
+    script.onerror = () => { cleanup(); reject(new Error('Failed to load Apps Script. Check the URL and deployment.')); };
+    document.head.appendChild(script);
+  });
+}
+
+
+// ── API ───────────────────────────────────────────────────────
+async function fetchRecords() {
+  if (!SCRIPT_URL) {
+    setEmptyState('Paste your Apps Script URL in the sidebar to load data.');
+    updateDash();
+    return;
+  }
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  try {
+    // Use JSONP to bypass CORS when running from file://
+    const data = await jsonpFetch(SCRIPT_URL + '?action=getAll');
+    if (data.error) throw new Error(data.error);
+    allRecords = (data.records || []).reverse(); // newest first
+    filtered   = [...allRecords];
+    renderTable();
+    updateDash();
+  } catch(e) {
+    console.error(e);
+    const msg = !navigator.onLine
+      ? 'No internet connection. Please reconnect and try again.'
+      : `Could not fetch records: ${e.message}`;
+    toast(msg, 'error');
+    allRecords = [];
+    filtered   = [];
+    renderTable();
+    updateDash();
+  } finally {
+    btn.classList.remove('spinning');
+  }
+}
+
+async function apiPost(payload) {
+  if (!SCRIPT_URL) { toast('Apps Script URL not configured.', 'error'); return null; }
+  if (!navigator.onLine) { toast('No internet connection. Please reconnect.', 'error'); return null; }
+  loading(true);
+  try {
+    // Use JSONP GET instead of POST — avoids the Apps Script 302 redirect
+    // issue that silently drops the POST body. All params go in the URL.
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(payload)) {
+      params.append(k, String(v ?? ''));
+    }
+    const url  = SCRIPT_URL + '?' + params.toString();
+    const data = await jsonpFetch(url);
+    if (data.error) throw new Error(data.error);
+    return data;
+  } catch(e) {
+    console.error(e);
+    const msg = !navigator.onLine
+      ? 'Connection lost. Please reconnect and try again.'
+      : `Request failed: ${e.message}`;
+    toast(msg, 'error');
+    return null;
+  } finally {
+    loading(false);
+  }
+}
+
+// ── Calculations ──────────────────────────────────────────────
+// type: 'monthly' (÷30) | 'daily' (÷1)
+const RATE_DIV = { monthly: 30, daily: 1 };
+
+function exactMonthsAndDays(f, t) {
+  const d1 = new Date(f + 'T00:00:00');
+  const d2 = new Date(t + 'T00:00:00');
+  if (isNaN(d1) || isNaN(d2)) return { months: 0, days: 0 };
+  
+  let months = (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
+  let days = d2.getDate() - d1.getDate();
+  
+  if (days < 0) {
+    months -= 1;
+    const prevMonth = new Date(d2.getFullYear(), d2.getMonth(), 0);
+    days += prevMonth.getDate();
+  }
+  return { months: Math.max(0, months), days: Math.max(0, days) };
+}
+
+function calcInterest(p, r, d, type, fromVal, toVal) {
+  if (!p || !r) return 0;
+  if (type === 'monthly' && fromVal && toVal) {
+    const { months, days } = exactMonthsAndDays(fromVal, toVal);
+    return (p * (r / 100) * months) + (p * (r / 100) * (days / 30));
+  }
+  if (!d) return 0;
+  const div = RATE_DIV[type] || 30;
+  return (p * (r / 100) * d) / div;
+}
+
+function calcRate(p, i, d, type) {
+  if (!p || !i || !d) return 0;
+  const div = RATE_DIV[type] || 30;
+  return (i * div * 100) / (p * d);
+}
+function daysBetween(f, t) {
+  const a = new Date(f), b = new Date(t);
+  if (isNaN(a) || isNaN(b)) return 0;
+  return Math.max(0, Math.round((b - a) / 86400000));
+}
+
+// ── App's Money Toggle Handlers ────────────────────────────────
+function toggleAppMoneyCheckbox() {
+  const checkbox = document.getElementById('isAppMoney');
+  checkbox.checked = !checkbox.checked;
+  toggleAppMoneyRow();
+}
+function toggleAppMoneyRow() {
+  const isChecked = document.getElementById('isAppMoney').checked;
+  document.getElementById('appInterestRow').style.display = isChecked ? '' : 'none';
+  document.getElementById('appInterestPlaceholder').style.display = isChecked ? '' : 'none';
+  
+  // Update Live Preview columns and items
+  document.getElementById('prevRealProfitItem').style.display = isChecked ? '' : 'none';
+  document.querySelector('.calc-preview .calc-row').classList.toggle('four-cols', isChecked);
+  
+  if (!isChecked) {
+    document.getElementById('appInterest').value = '';
+  }
+  autoCalc();
+}
+
+// ── Rate Type UI ──────────────────────────────────────────────
+function getRateType() {
+  return document.querySelector('input[name="rateType"]:checked')?.value || 'monthly';
+}
+function onRateTypeChange() {
+  const t = getRateType();
+  const isBoth = t === 'both';
+  document.getElementById('singleRateRow').style.display        = isBoth ? 'none' : '';
+  document.getElementById('singleRatePlaceholder').style.display = isBoth ? 'none' : '';
+  document.getElementById('dualRateRow').classList.toggle('show', isBoth);
+
+  const sufEl   = document.getElementById('singleRateSuf');
+  const lblEl   = document.getElementById('singleRateLabel');
+  const pvLabel = document.getElementById('prevRateTypeLabel');
+  const pvRate  = document.getElementById('prevRateLabel');
+  if (t === 'monthly') {
+    sufEl.textContent  = '% p.m.';
+    lblEl.textContent  = 'Interest Rate (%)';
+    pvLabel.textContent = 'Per Month';
+    pvRate.textContent  = 'Rate (p.m.)';
+  } else if (t === 'daily') {
+    sufEl.textContent  = '% p.d.';
+    lblEl.textContent  = 'Interest Rate (%)';
+    pvLabel.textContent = 'Per Day';
+    pvRate.textContent  = 'Rate (p.d.)';
+  } else {
+    pvLabel.textContent = 'Per Month + Per Day';
+    pvRate.textContent  = 'Monthly Rate';
+  }
+  autoCalc();
+}
+
+function onRateInput()     { lastEditField = 'rate';     autoCalc(); }
+function onInterestInput() { lastEditField = 'interest'; autoCalc(); }
+
+function onDaysInput() {
+  const days    = parseInt(document.getElementById('numDays').value);
+  const fromVal = document.getElementById('fromDate').value;
+  if (days > 0 && fromVal) {
+    const d = new Date(fromVal);
+    d.setDate(d.getDate() + days);
+    document.getElementById('toDate').value = fmtDateInput(d);
+  }
+  autoCalc();
+}
+
+function autoCalc() {
+  const principal = parseFloat(document.getElementById('principal').value) || 0;
+  const fromVal   = document.getElementById('fromDate').value;
+  const toVal     = document.getElementById('toDate').value;
+  const intInput  = document.getElementById('interestAmount');
+  const daysEl    = document.getElementById('numDays');
+  const rateType  = getRateType();
+
+  // Compute days from dates
+  let days = 0;
+  if (fromVal && toVal) {
+    days = daysBetween(fromVal, toVal);
+    if (document.activeElement !== daysEl) daysEl.value = days > 0 ? days : '';
+  }
+
+  const intVal = parseFloat(intInput.value);
+  let interest = 0, rate = 0;
+
+  if (rateType === 'both') {
+    // Both: sum monthly + daily interest
+    const rateM = parseFloat(document.getElementById('rateMonthly').value) || 0;
+    const rateD = parseFloat(document.getElementById('rateDaily').value)   || 0;
+    if (principal > 0 && days > 0) {
+      const intM = calcInterest(principal, rateM, days, 'monthly', fromVal, toVal);
+      const intD = calcInterest(principal, rateD, days, 'daily', fromVal, toVal);
+      interest   = intM + intD;
+      rate       = rateM; // show monthly rate in preview
+      if (document.activeElement !== intInput)
+        intInput.value = interest.toFixed(2);
+    }
+    document.getElementById('prevRate').textContent = rateM > 0 ? rateM.toFixed(4) + '%' : '0.00%';
+  } else {
+    const rateInput = document.getElementById('interestRate');
+    const rateVal   = parseFloat(rateInput.value);
+
+    if (lastEditField === 'interest' && !isNaN(intVal) && intVal >= 0) {
+      interest = intVal;
+      if (principal > 0 && days > 0) {
+        rate = calcRate(principal, interest, days, rateType);
+        if (document.activeElement !== rateInput)
+          rateInput.value = rate.toFixed(4);
+      }
+    } else if (!isNaN(rateVal) && rateVal >= 0) {
+      rate = rateVal;
+      if (principal > 0 && days > 0) {
+        interest = calcInterest(principal, rate, days, rateType, fromVal, toVal);
+        if (document.activeElement !== intInput)
+          intInput.value = interest.toFixed(2);
+      }
+    }
+    document.getElementById('prevRate').textContent = rate > 0 ? rate.toFixed(4) + '%' : '0.00%';
+  }
+
+  const isAppMoney = document.getElementById('isAppMoney').checked;
+  const appInterest = isAppMoney ? (parseFloat(document.getElementById('appInterest').value) || 0) : 0;
+  const realProfit = interest - appInterest;
+
+  const total = principal + interest;
+  document.getElementById('prevInterest').textContent = fmtCur(interest);
+  document.getElementById('prevTotal').textContent    = fmtCur(total);
+  document.getElementById('prevRealProfit').textContent = fmtCur(realProfit);
+}
+
+// ── Modal ─────────────────────────────────────────────────────
+function openModal(rec = null) {
+  editingId     = rec ? rec.id : null;
+  lastEditField = null;
+  document.getElementById('entryForm').reset();
+  document.getElementById('modalTitle').textContent = rec ? 'Edit Entry' : 'New Lending Entry';
+
+  if (rec) {
+    // Restore rate type
+    const rt = rec.rateType || 'monthly';
+    const radioEl = document.querySelector(`input[name="rateType"][value="${rt}"]`);
+    if (radioEl) radioEl.checked = true;
+    onRateTypeChange(); // apply UI changes for the restored type
+
+    document.getElementById('editId').value         = rec.id;
+    document.getElementById('senderName').value     = rec.senderName    || '';
+    document.getElementById('principal').value      = rec.principal     || '';
+    document.getElementById('fromDate').value       = rec.fromDate      || '';
+    document.getElementById('toDate').value         = rec.toDate        || '';
+    document.getElementById('numDays').value        = rec.numDays       || '';
+    document.getElementById('interestAmount').value = rec.interestAmount || '';
+
+    const isApp = rec.isAppMoney === 'true' || rec.isAppMoney === true;
+    document.getElementById('isAppMoney').checked = isApp;
+    document.getElementById('appInterest').value = isApp ? (rec.appInterest || '') : '';
+    toggleAppMoneyRow();
+
+    if (rt === 'both') {
+      document.getElementById('rateMonthly').value = rec.rateMonthly || '';
+      document.getElementById('rateDaily').value   = rec.rateDaily   || '';
+    } else {
+      document.getElementById('interestRate').value = rec.interestRate || '';
+    }
+    lastEditField = rec.interestAmount ? 'interest' : 'rate';
+    autoCalc();
+  } else {
+    // Default to Per Month
+    document.getElementById('rtMonth').checked = true;
+    document.getElementById('isAppMoney').checked = false;
+    toggleAppMoneyRow();
+    onRateTypeChange();
+    setDefaultDates();
+    autoCalc();
+  }
+  document.getElementById('modalOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('senderName').focus(), 280);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  editingId = null;
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+async function handleSubmit(e) {
+  if (e) e.preventDefault();
+
+  const senderName  = document.getElementById('senderName').value.trim();
+  const principal   = parseFloat(document.getElementById('principal').value);
+  const fromDate    = document.getElementById('fromDate').value;
+  const toDate      = document.getElementById('toDate').value;
+  const numDays     = parseInt(document.getElementById('numDays').value) || daysBetween(fromDate, toDate);
+  const rateType    = getRateType();
+
+  let interestRate  = 0, rateMonthly = 0, rateDaily = 0, interestAmt = 0;
+
+  if (rateType === 'both') {
+    rateMonthly  = parseFloat(document.getElementById('rateMonthly').value) || 0;
+    rateDaily    = parseFloat(document.getElementById('rateDaily').value)   || 0;
+    interestAmt  = parseFloat(document.getElementById('interestAmount').value) ||
+                   calcInterest(principal, rateMonthly, numDays, 'monthly', fromDate, toDate) +
+                   calcInterest(principal, rateDaily,   numDays, 'daily', fromDate, toDate);
+    interestRate = rateMonthly; // primary rate for sheet display
+  } else {
+    interestRate = parseFloat(document.getElementById('interestRate').value) || 0;
+    interestAmt  = parseFloat(document.getElementById('interestAmount').value) ||
+                   calcInterest(principal, interestRate, numDays, rateType, fromDate, toDate);
+  }
+
+  const totalAmount = principal + interestAmt;
+
+  if (!senderName || !principal || !fromDate || !toDate) {
+    toast('Please fill in all required fields.', 'error'); return;
+  }
+  if (new Date(toDate) < new Date(fromDate)) {
+    toast('To Date must be after From Date.', 'error'); return;
+  }
+
+  const isAppMoney = document.getElementById('isAppMoney').checked;
+  const appInterest = isAppMoney ? (parseFloat(document.getElementById('appInterest').value) || 0) : 0;
+
+  const payload = {
+    action:         editingId ? 'edit' : 'add',
+    id:             editingId || genId(),
+    senderName,
+    principal:      principal.toFixed(2),
+    interestRate:   interestRate.toFixed(4),
+    rateMonthly:    rateMonthly.toFixed(4),
+    rateDaily:      rateDaily.toFixed(4),
+    rateType,
+    interestAmount: interestAmt.toFixed(2),
+    fromDate,
+    toDate,
+    numDays,
+    totalAmount:    totalAmount.toFixed(2),
+    isAppMoney:     isAppMoney ? 'true' : 'false',
+    appInterest:    appInterest.toFixed(2),
+    status:         editingId ? (allRecords.find(r => r.id === editingId)?.status || 'Unpaid') : 'Unpaid'
+  };
+
+  const res = await apiPost(payload);
+  if (res && res.success) {
+    toast(editingId ? 'Record updated!' : 'Entry saved!', 'success');
+    closeModal();
+    await fetchRecords();
+  } else if (res) {
+    toast(res.error || 'Something went wrong.', 'error');
+  }
+}
+
+// ── Delete ────────────────────────────────────────────────────
+function confirmDelete(id) {
+  pendingDelId = id;
+  document.getElementById('confirmOverlay').classList.add('show');
+  document.getElementById('confirmDeleteBtn').onclick = async () => {
+    const idToDelete = pendingDelId;   // capture BEFORE closeConfirm nulls it
+    closeConfirm();
+    const res = await apiPost({ action: 'delete', id: idToDelete });
+    if (res && res.success) {
+      toast('Record deleted.', 'success');
+      await fetchRecords();
+    } else if (res) {
+      toast(res.error || 'Delete failed.', 'error');
+    }
+  };
+}
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('show');
+  pendingDelId = null;
+}
+
+// ── Status Toggle ─────────────────────────────────────────────
+async function toggleStatus(id, current) {
+  const newStatus = current === 'Paid' ? 'Unpaid' : 'Paid';
+  const res = await apiPost({ action: 'updateStatus', id, status: newStatus });
+  if (res && res.success) {
+    toast(`Marked as ${newStatus}`, newStatus === 'Paid' ? 'success' : 'warning');
+    await fetchRecords();
+  } else if (res) {
+    toast(res.error || 'Status update failed.', 'error');
+  }
+}
+
+// ── Edit helper ───────────────────────────────────────────────
+function editRecord(id) {
+  const rec = allRecords.find(r => r.id === id);
+  if (rec) openModal(rec);
+}
+
+// ── Table Render ──────────────────────────────────────────────
+function renderTable() {
+  const tbody    = document.getElementById('tableBody');
+  const emptyEl  = document.getElementById('emptyState');
+  const countEl  = document.getElementById('tableCount');
+  const mobileEl = document.getElementById('mobileCards');
+
+  if (!filtered.length) {
+    tbody.innerHTML    = '';
+    mobileEl.innerHTML = '';
+    emptyEl.style.display = 'block';
+    countEl.textContent   = '0 records';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  countEl.textContent   = `${filtered.length} record${filtered.length !== 1 ? 's' : ''}`;
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = fmtDateInput(today);
+
+  // Desktop table rows
+  tbody.innerHTML = filtered.map((r, i) => {
+    const paid    = r.status === 'Paid';
+    const toD     = new Date(r.toDate + 'T00:00:00');
+    const overdue = !paid && toD < today;
+    
+    let liveToDate = r.toDate;
+    let liveDays = parseInt(r.numDays) || 0;
+    let liveInterest = parseFloat(r.interestAmount) || 0;
+    let liveTotal = parseFloat(r.totalAmount) || 0;
+
+    if (overdue) {
+       liveToDate = todayStr;
+       liveDays = daysBetween(r.fromDate, liveToDate);
+       let rateM = parseFloat(r.rateMonthly) || 0;
+       let rateD = parseFloat(r.rateDaily) || 0;
+       let rateI = parseFloat(r.interestRate) || 0;
+       
+       if (r.rateType === 'both') {
+          const intM = calcInterest(r.principal, rateM, liveDays, 'monthly', r.fromDate, liveToDate);
+          const intD = calcInterest(r.principal, rateD, liveDays, 'daily', r.fromDate, liveToDate);
+          liveInterest = intM + intD;
+       } else {
+          liveInterest = calcInterest(r.principal, rateI, liveDays, r.rateType, r.fromDate, liveToDate);
+       }
+       liveTotal = parseFloat(r.principal) + liveInterest;
+    }
+
+    const isApp = r.isAppMoney === 'true' || r.isAppMoney === true;
+    const appInt = isApp ? (parseFloat(r.appInterest) || 0) : 0;
+    const realProfit = liveInterest - appInt;
+
+    return `
+    <tr class="${isApp ? 'row-app-money' : ''}">
+      <td class="td-num">${i + 1}</td>
+      <td class="td-name">
+        ${overdue ? `<span class="overdue-dot" title="Overdue"></span>` : ''}
+        ${esc(r.senderName)}
+        ${isApp ? `<span class="app-money-tag" title="Funded via App's Money"><i class="fas fa-mobile-alt"></i> App</span>` : ''}
+      </td>
+      <td class="td-amt td-blue">₹${fmtNum(r.principal)}</td>
+      <td>${formatRateCell(r)}</td>
+      <td class="td-amt td-amber">
+        ₹${fmtNum(liveInterest)}
+        ${isApp ? `<div class="real-profit-sub" title="Real Profit (Interest - App Interest)">Real: ₹${fmtNum(realProfit)}</div>` : ''}
+      </td>
+      <td>${fmtDate(r.fromDate)}</td>
+      <td>${fmtDate(liveToDate)}${overdue ? ' <i class="fas fa-bolt" style="color:var(--warning);font-size:10px" title="Live update"></i>' : ''}</td>
+      <td class="td-num">${liveDays || '—'}</td>
+      <td class="td-amt td-bold"><strong>₹${fmtNum(liveTotal)}</strong></td>
+      <td>
+        <button class="badge ${paid ? 'badge-paid' : 'badge-unpaid'}"
+          onclick="toggleStatus('${r.id}','${r.status}')" title="Click to toggle">
+          <i class="fas ${paid ? 'fa-check-circle' : 'fa-clock'}"></i>
+          ${r.status || 'Unpaid'}
+        </button>
+      </td>
+      <td>
+        <div class="act-wrap">
+          <button class="act-btn act-edit"   onclick="editRecord('${r.id}')"    title="Edit"><i class="fas fa-pen"></i></button>
+          <button class="act-btn act-delete" onclick="confirmDelete('${r.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Mobile card rows
+  mobileEl.innerHTML = filtered.map((r, i) => {
+    const paid    = r.status === 'Paid';
+    const toD     = new Date(r.toDate + 'T00:00:00');
+    const overdue = !paid && toD < today;
+
+    let liveToDate = r.toDate;
+    let liveDays = parseInt(r.numDays) || 0;
+    let liveInterest = parseFloat(r.interestAmount) || 0;
+    let liveTotal = parseFloat(r.totalAmount) || 0;
+
+    if (overdue) {
+       liveToDate = todayStr;
+       liveDays = daysBetween(r.fromDate, liveToDate);
+       let rateM = parseFloat(r.rateMonthly) || 0;
+       let rateD = parseFloat(r.rateDaily) || 0;
+       let rateI = parseFloat(r.interestRate) || 0;
+       
+       if (r.rateType === 'both') {
+          const intM = calcInterest(r.principal, rateM, liveDays, 'monthly', r.fromDate, liveToDate);
+          const intD = calcInterest(r.principal, rateD, liveDays, 'daily', r.fromDate, liveToDate);
+          liveInterest = intM + intD;
+       } else {
+          liveInterest = calcInterest(r.principal, rateI, liveDays, r.rateType, r.fromDate, liveToDate);
+       }
+       liveTotal = parseFloat(r.principal) + liveInterest;
+    }
+
+    const isApp = r.isAppMoney === 'true' || r.isAppMoney === true;
+    const appInt = isApp ? (parseFloat(r.appInterest) || 0) : 0;
+    const realProfit = liveInterest - appInt;
+
+    return `
+    <div class="mobile-card ${isApp ? 'card-app-money' : ''}">
+      <div class="mc-header">
+        <div class="mc-name">
+          ${overdue ? `<span class="overdue-dot" title="Overdue"></span>` : ''}
+          ${esc(r.senderName)}
+          ${isApp ? `<span class="app-money-tag" title="Funded via App's Money"><i class="fas fa-mobile-alt"></i> App</span>` : ''}
+        </div>
+        <button class="badge ${paid ? 'badge-paid' : 'badge-unpaid'}"
+          onclick="toggleStatus('${r.id}','${r.status}')" title="Tap to toggle">
+          <i class="fas ${paid ? 'fa-check-circle' : 'fa-clock'}"></i>
+          ${r.status || 'Unpaid'}
+        </button>
+      </div>
+      <div class="mc-grid">
+        <div class="mc-cell">
+          <span class="mc-label">Principal</span>
+          <span class="mc-val blue">₹${fmtNum(r.principal)}</span>
+        </div>
+        <div class="mc-cell">
+          <span class="mc-label">Interest</span>
+          <span class="mc-val amber">
+            ₹${fmtNum(liveInterest)}
+            ${isApp ? `<div class="real-profit-sub" style="margin-top:1px" title="Real Profit">Real: ₹${fmtNum(realProfit)}</div>` : ''}
+          </span>
+        </div>
+        <div class="mc-cell">
+          <span class="mc-label">Total Due</span>
+          <span class="mc-val bold">₹${fmtNum(liveTotal)}</span>
+        </div>
+        <div class="mc-cell">
+          <span class="mc-label">Rate</span>
+          <span class="mc-val">${formatRateCell(r)}</span>
+        </div>
+        <div class="mc-cell">
+          <span class="mc-label">From</span>
+          <span class="mc-val">${fmtDate(r.fromDate)}</span>
+        </div>
+        <div class="mc-cell">
+          <span class="mc-label">To · ${liveDays || '—'}d</span>
+          <span class="mc-val">${fmtDate(liveToDate)}${overdue ? ' <i class="fas fa-bolt" style="color:var(--warning);font-size:10px" title="Live update"></i>' : ''}</span>
+        </div>
+      </div>
+      <div class="mc-footer">
+        <span style="font-size:11px;color:var(--gray-400)">#${i + 1}</span>
+        <div class="mc-actions">
+          <button class="act-btn act-edit"   onclick="editRecord('${r.id}')"    title="Edit"><i class="fas fa-pen"></i></button>
+          <button class="act-btn act-delete" onclick="confirmDelete('${r.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Filter & Sort ─────────────────────────────────────────────
+function filterTable() {
+  const q  = document.getElementById('searchInput').value.toLowerCase();
+  const st = document.getElementById('statusFilter').value;
+  filtered = allRecords.filter(r => {
+    const matchQ = !q ||
+      (r.senderName  || '').toLowerCase().includes(q) ||
+      (r.principal   || '').toString().includes(q)    ||
+      (r.totalAmount || '').toString().includes(q);
+    const matchS = !st || r.status === st;
+    return matchQ && matchS;
+  });
+  if (sortField) applySortToFiltered();
+  renderTable();
+}
+
+function sortBy(field) {
+  if (sortField === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  else { sortField = field; sortDir = 'asc'; }
+  filterTable();
+}
+
+function applySortToFiltered() {
+  filtered.sort((a, b) => {
+    let av = a[sortField], bv = b[sortField];
+    if (['principal','totalAmount','interestAmount','numDays'].includes(sortField)) {
+      av = parseFloat(av) || 0; bv = parseFloat(bv) || 0;
+    } else if (sortField.includes('Date')) {
+      av = new Date(av); bv = new Date(bv);
+    } else {
+      av = (av || '').toLowerCase(); bv = (bv || '').toLowerCase();
+    }
+    if (av < bv) return sortDir === 'asc' ? -1 : 1;
+    if (av > bv) return sortDir === 'asc' ?  1 : -1;
+    return 0;
+  });
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+function updateDash() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = fmtDateInput(today);
+  
+  const unpaid = allRecords.filter(r => r.status !== 'Paid');
+  const sumP   = unpaid.reduce((s,r) => s + (parseFloat(r.principal) || 0), 0);
+  
+  const totalBorrowerInterest = unpaid.reduce((s,r) => {
+    let toD = new Date(r.toDate + 'T00:00:00');
+    let liveInterest = parseFloat(r.interestAmount) || 0;
+    if (toD < today) {
+       let liveDays = daysBetween(r.fromDate, todayStr);
+       if (r.rateType === 'both') {
+          const intM = calcInterest(r.principal, parseFloat(r.rateMonthly)||0, liveDays, 'monthly', r.fromDate, todayStr);
+          const intD = calcInterest(r.principal, parseFloat(r.rateDaily)||0, liveDays, 'daily', r.fromDate, todayStr);
+          liveInterest = intM + intD;
+       } else {
+          liveInterest = calcInterest(r.principal, parseFloat(r.interestRate)||0, liveDays, r.rateType, r.fromDate, todayStr);
+       }
+    }
+    return s + liveInterest;
+  }, 0);
+
+  const totalAppInterest = unpaid.reduce((s,r) => {
+    const isApp = r.isAppMoney === 'true' || r.isAppMoney === true;
+    return s + (isApp ? (parseFloat(r.appInterest) || 0) : 0);
+  }, 0);
+
+  const expectedRealProfit = totalBorrowerInterest - totalAppInterest;
+  const sumT = sumP + totalBorrowerInterest;
+
+  animNum('statPrincipal', sumP,   true);
+  animNum('statInterest',  expectedRealProfit,   true);
+  animNum('statAppInterest', totalAppInterest, true);
+  animNum('statTotal',     sumT,   true);
+  document.getElementById('statActive').textContent = unpaid.length;
+
+  document.getElementById('statInterestMeta').innerHTML = totalAppInterest > 0
+    ? `Gross: ₹${fmtNum(totalBorrowerInterest)} | App Int: ₹${fmtNum(totalAppInterest)}`
+    : `Gross interest from unpaid records`;
+}
+
+function animNum(id, target, currency) {
+  const el = document.getElementById(id);
+  const t0 = performance.now();
+  const dur = 700;
+  function tick(now) {
+    const p = Math.min((now - t0) / dur, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = currency ? fmtCur(target * ease) : Math.round(target * ease);
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// ── Export CSV ────────────────────────────────────────────────
+function exportCSV() {
+  if (!allRecords.length) { toast('No records to export.', 'warning'); return; }
+  const hdr  = ['ID','Sender Name','Principal','Interest Rate %','Interest Amount','From Date','To Date','Days','Total Amount','Status','Is App Money','App Interest'];
+  const rows = allRecords.map(r => [
+    r.id, r.senderName, r.principal, r.interestRate,
+    r.interestAmount, r.fromDate, r.toDate, r.numDays, r.totalAmount, r.status,
+    r.isAppMoney || 'false', r.appInterest || '0.00'
+  ]);
+  const csv  = [hdr, ...rows].map(row => row.map(v => `"${v ?? ''}"`).join(',')).join('\n');
+  const a    = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([csv], {type:'text/csv'})),
+    download: `lendtrack_${new Date().toISOString().slice(0,10)}.csv`
+  });
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('CSV exported!', 'success');
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function refreshData() { fetchRecords(); }
+function loading(show) { document.getElementById('loadingOverlay').classList.toggle('show', show); }
+
+function toast(msg, type = 'info') {
+  const icons = { success:'fa-check-circle', error:'fa-times-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<i class="fas ${icons[type]||icons.info} ti"></i><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0'; el.style.transform = 'translateX(110%)'; el.style.transition = 'all .3s ease';
+    setTimeout(() => el.remove(), 320);
+  }, 3200);
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.querySelector('.main-content');
+  if (window.innerWidth <= 768) {
+    sidebar.classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+  } else {
+    sidebar.classList.toggle('closed');
+    main.classList.toggle('expanded');
+  }
+}
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const main = document.querySelector('.main-content');
+  if (window.innerWidth <= 768) {
+    sidebar.classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+  } else {
+    sidebar.classList.add('closed');
+    main.classList.add('expanded');
+  }
+}
+function switchView(viewId, navId) {
+  document.getElementById('dashboardView').classList.remove('active');
+  document.getElementById('walletView').classList.remove('active');
+  document.getElementById(viewId).classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  if (navId) document.getElementById(navId)?.classList.add('active');
+
+  const titleMap = { dashboardView: 'Dashboard', walletView: 'Wallet' };
+  document.querySelector('.page-title').textContent = titleMap[viewId] || 'Dashboard';
+
+  if (viewId === 'walletView') renderWallet();
+}
+
+function renderWallet() {
+  const paid = allRecords.filter(r => r.status === 'Paid');
+  
+  const sumP = paid.reduce((s,r) => s + (parseFloat(r.principal) || 0), 0);
+  const grossInterest = paid.reduce((s,r) => s + (parseFloat(r.interestAmount) || 0), 0);
+  
+  const appInterestPaid = paid.reduce((s,r) => {
+    const isApp = r.isAppMoney === 'true' || r.isAppMoney === true;
+    return s + (isApp ? (parseFloat(r.appInterest) || 0) : 0);
+  }, 0);
+
+  const realProfit = grossInterest - appInterestPaid;
+  const sumT = sumP + grossInterest;
+  
+  animNum('walletProfit', realProfit, true);
+  animNum('walletAppInterest', appInterestPaid, true);
+  animNum('walletPrincipal', sumP, true);
+  animNum('walletTotal', sumT, true);
+  document.getElementById('walletPaidCount').textContent = paid.length;
+
+  document.getElementById('walletProfitMeta').innerHTML = appInterestPaid > 0
+    ? `Gross: ₹${fmtNum(grossInterest)} | App Int: ₹${fmtNum(appInterestPaid)}`
+    : `Interest collected from paid records`;
+  
+  // Graph logic
+  const profitByMonth = {};
+  paid.forEach(r => {
+    if (!r.toDate) return;
+    const d = new Date(r.toDate + 'T00:00:00');
+    if (isNaN(d)) return;
+    const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    const isApp = r.isAppMoney === 'true' || r.isAppMoney === true;
+    const appInt = isApp ? (parseFloat(r.appInterest) || 0) : 0;
+    const itemProfit = (parseFloat(r.interestAmount) || 0) - appInt;
+    profitByMonth[key] = (profitByMonth[key] || 0) + itemProfit;
+  });
+  
+  const keys = Object.keys(profitByMonth).sort();
+  const recent = keys.slice(-6); // last 6 months
+  
+  const chartEl = document.getElementById('profitChart');
+  chartEl.innerHTML = '';
+  
+  if (recent.length === 0) {
+    chartEl.innerHTML = '<div style="width:100%;text-align:center;color:var(--gray-400);font-size:13px;padding:40px 0;">No paid records to display.</div>';
+    return;
+  }
+  
+  const maxVal = Math.max(...recent.map(k => profitByMonth[k]));
+  
+  recent.forEach(k => {
+    const val = profitByMonth[k];
+    const pct = maxVal > 0 ? (val / maxVal) * 100 : 0;
+    
+    const [yy, mm] = k.split('-');
+    const dateObj = new Date(parseInt(yy), parseInt(mm) - 1, 1);
+    const label = dateObj.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+    
+    const wrap = document.createElement('div');
+    wrap.className = 'chart-bar-wrap';
+    
+    const valEl = document.createElement('div');
+    valEl.className = 'chart-val';
+    valEl.textContent = '₹' + Math.round(val).toLocaleString('en-IN');
+    
+    const bar = document.createElement('div');
+    bar.className = 'chart-bar';
+    bar.style.height = '0%';
+    setTimeout(() => { bar.style.height = Math.max(pct, 2) + '%'; }, 50);
+    
+    const lbl = document.createElement('div');
+    lbl.className = 'chart-label';
+    lbl.textContent = label;
+    
+    wrap.appendChild(valEl);
+    wrap.appendChild(bar);
+    wrap.appendChild(lbl);
+    chartEl.appendChild(wrap);
+  });
+}
+function setEmptyState(msg) {
+  document.getElementById('emptyState').style.display = 'block';
+  document.getElementById('emptyMsg').textContent = msg;
+  document.getElementById('tableBody').innerHTML = '';
+  document.getElementById('tableCount').textContent = '0 records';
+}
+
+function fmtCur(v) {
+  return '₹' + parseFloat(v||0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtNum(v) {
+  return parseFloat(v||0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtDate(v) {
+  if (!v) return '—';
+  const d = new Date(v + 'T00:00:00');
+  return d.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
+}
+function fmtDateInput(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function genId() {
+  return 'LT' + Date.now() + Math.random().toString(36).substr(2,4).toUpperCase();
+}
+function esc(s) {
+  const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML;
+}
+function formatRateCell(r) {
+  const rt = r.rateType || 'monthly';
+  if (rt === 'both') {
+    const m = r.rateMonthly ? parseFloat(r.rateMonthly).toFixed(2) + '% p.m.' : '';
+    const d = r.rateDaily   ? parseFloat(r.rateDaily).toFixed(2)   + '% p.d.' : '';
+    if (m && d) return m + ' + ' + d;
+    return m || d || '—';
+  }
+  const suffix = rt === 'daily' ? '% p.d.' : '% p.m.';
+  return r.interestRate ? parseFloat(r.interestRate).toFixed(2) + suffix : '—';
+}
+</script>
+</body>
+</html>
