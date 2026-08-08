@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lendtrack-v4';
+const CACHE_NAME = 'lendtrack-v6';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -27,6 +27,28 @@ self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET' || e.request.url.includes('script.google.com')) {
     return;
   }
+
+  // Network-first for the HTML shell: always serve the latest deployed
+  // app when online, so this doesn't go stale until CACHE_NAME is bumped
+  // by hand. Falls back to the last cached copy only when offline.
+  const isHTML = e.request.mode === 'navigate' ||
+    (e.request.headers.get('accept') || '').includes('text/html');
+
+  if (isHTML) {
+    e.respondWith(
+      fetch(e.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+        }
+        return networkResponse;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Cache-first for static assets (fonts/CSS/manifest) — safe to cache
+  // since they're versioned by URL and rarely change.
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
       return cachedResponse || fetch(e.request).then((networkResponse) => {

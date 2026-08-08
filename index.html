@@ -1588,15 +1588,31 @@
             <span class="form-hint">Interest charged by the credit app</span>
           </div>
 
-          <!-- Person Interest Row -->
-          <div class="fg" id="personInterestRow" style="display: none;">
-            <label class="form-label">Person Interest Amount <span class="req">*</span></label>
-            <div class="input-wrap has-pre">
-              <span class="input-pre">₹</span>
-              <input type="number" class="form-input" id="personInterest"
-                placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+          <!-- Person Funded Fields -->
+          <div id="personInterestRow" style="display: none;">
+            <div class="fg span2">
+              <label class="form-label">Lender's Name <span class="req">*</span></label>
+              <input type="text" class="form-input" id="personLenderName"
+                placeholder="e.g. Ravi Kumar" oninput="updatePersonFundLabels()" />
             </div>
-            <span class="form-hint">Interest paid to the lender person</span>
+            <div class="fg">
+              <label class="form-label" id="personAmountFundedLabel">Amount Funded</label>
+              <div class="input-wrap has-pre">
+                <span class="input-pre">₹</span>
+                <input type="number" class="form-input" id="personAmountFunded"
+                  placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+              </div>
+              <span class="form-hint" id="personAmountFundedHint">Amount you borrowed for this loan</span>
+            </div>
+            <div class="fg">
+              <label class="form-label" id="personInterestLabel">Person Interest Amount <span class="req">*</span></label>
+              <div class="input-wrap has-pre">
+                <span class="input-pre">₹</span>
+                <input type="number" class="form-input" id="personInterest"
+                  placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+              </div>
+              <span class="form-hint" id="personInterestHint">Interest paid to the lender person</span>
+            </div>
           </div>
 
           <!-- Description -->
@@ -1942,9 +1958,11 @@ function toggleFundingFields() {
     prevProfitVal.style.color = 'var(--purple)';
     document.querySelector('.calc-preview .calc-row').classList.add('four-cols');
     document.getElementById('personInterest').value = '';
+    document.getElementById('personLenderName').value = '';
+    document.getElementById('personAmountFunded').value = '';
   } else if (source === 'person') {
     appRow.style.display = 'none';
-    personRow.style.display = '';
+    personRow.style.display = 'contents';
     prevProfitItem.style.display = '';
     prevProfitLabel.textContent = 'Net Profit';
     prevProfitLabel.style.color = 'var(--indigo)';
@@ -1958,8 +1976,31 @@ function toggleFundingFields() {
     document.querySelector('.calc-preview .calc-row').classList.remove('four-cols');
     document.getElementById('appInterest').value = '';
     document.getElementById('personInterest').value = '';
+    document.getElementById('personLenderName').value = '';
+    document.getElementById('personAmountFunded').value = '';
   }
+  updatePersonFundLabels();
   autoCalc();
+}
+
+// ── Person-Funded dynamic labels ───────────────────────────────
+function updatePersonFundLabels() {
+  const name = document.getElementById('personLenderName').value.trim();
+  const amtLabel = document.getElementById('personAmountFundedLabel');
+  const amtHint  = document.getElementById('personAmountFundedHint');
+  const intLabel = document.getElementById('personInterestLabel');
+  const intHint  = document.getElementById('personInterestHint');
+  if (name) {
+    amtLabel.innerHTML = `Amount You Brought From <span style="color:var(--indigo)">${esc(name)}</span>`;
+    amtHint.textContent = `How much you borrowed from ${name}`;
+    intLabel.innerHTML  = `Interest Owed To <span style="color:var(--indigo)">${esc(name)}</span> <span class="req">*</span>`;
+    intHint.textContent = `Interest you owe ${name} on this loan`;
+  } else {
+    amtLabel.textContent = 'Amount Funded';
+    amtHint.textContent  = 'Amount you borrowed for this loan';
+    intLabel.innerHTML   = 'Person Interest Amount <span class="req">*</span>';
+    intHint.textContent  = 'Interest paid to the lender person';
+  }
 }
 
 // ── Rate Type UI ──────────────────────────────────────────────
@@ -2110,6 +2151,8 @@ function openModal(rec = null) {
     
     document.getElementById('appInterest').value = isApp ? (rec.appInterest || '') : '';
     document.getElementById('personInterest').value = isPerson ? (rec.personInterest || '') : '';
+    document.getElementById('personLenderName').value = isPerson ? (rec.personLenderName || '') : '';
+    document.getElementById('personAmountFunded').value = isPerson ? (rec.personAmountFunded || '') : '';
     toggleFundingFields();
 
     if (rt === 'both') {
@@ -2182,7 +2225,13 @@ async function handleSubmit(e) {
   const isPersonMoney = fundingSource === 'person';
   const appInterest = isAppMoney ? (parseFloat(document.getElementById('appInterest').value) || 0) : 0;
   const personInterest = isPersonMoney ? (parseFloat(document.getElementById('personInterest').value) || 0) : 0;
+  const personLenderName = isPersonMoney ? document.getElementById('personLenderName').value.trim() : '';
+  const personAmountFunded = isPersonMoney ? (parseFloat(document.getElementById('personAmountFunded').value) || 0) : 0;
   const description = document.getElementById('description').value.trim();
+
+  if (isPersonMoney && !personLenderName) {
+    toast("Please enter the lender's name.", 'error'); return;
+  }
 
   const payload = {
     action:         editingId ? 'edit' : 'add',
@@ -2203,6 +2252,8 @@ async function handleSubmit(e) {
     appInterest:    appInterest.toFixed(2),
     isPersonMoney:  isPersonMoney ? 'true' : 'false',
     personInterest: personInterest.toFixed(2),
+    personLenderName,
+    personAmountFunded: personAmountFunded.toFixed(2),
     status:         editingId ? (allRecords.find(r => r.id === editingId)?.status || 'Unpaid') : 'Unpaid'
   };
 
@@ -2627,12 +2678,13 @@ function animNum(id, target, currency) {
 // ── Export CSV ────────────────────────────────────────────────
 function exportCSV() {
   if (!allRecords.length) { toast('No records to export.', 'warning'); return; }
-  const hdr  = ['ID','Sender Name','Principal','Interest Rate %','Interest Amount','From Date','To Date','Days','Total Amount','Status','Is App Money','App Interest','Is Person Money','Person Interest','Description'];
+  const hdr  = ['ID','Sender Name','Principal','Interest Rate %','Interest Amount','From Date','To Date','Days','Total Amount','Status','Is App Money','App Interest','Is Person Money','Person Interest','Lender Name','Amount Funded','Description'];
   const rows = allRecords.map(r => [
     r.id, r.senderName, r.principal, r.interestRate,
     r.interestAmount, r.fromDate, r.toDate, r.numDays, r.totalAmount, r.status,
     r.isAppMoney || 'false', r.appInterest || '0.00',
     r.isPersonMoney || 'false', r.personInterest || '0.00',
+    r.personLenderName || '', r.personAmountFunded || '0.00',
     r.description || ''
   ]);
   const csv  = [hdr, ...rows].map(row => row.map(v => `"${v ?? ''}"`).join(',')).join('\n');
