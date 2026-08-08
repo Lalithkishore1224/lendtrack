@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lendtrack-v3';
+const CACHE_NAME = 'lendtrack-v4';
 const ASSETS = [
   './index.html',
   './manifest.json',

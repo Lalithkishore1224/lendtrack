@@ -518,23 +518,57 @@
     }
 
     /* ── View / Description Modal ── */
-    .view-meta-row {
-      display:flex; flex-wrap:wrap; gap:16px;
-      margin-bottom:18px;
-      padding-bottom:16px;
-      border-bottom:1px solid var(--gray-100);
+    .view-hd-info { display:flex; align-items:center; gap:12px; min-width:0; }
+    .view-avatar {
+      width:42px; height:42px; border-radius:50%;
+      background:linear-gradient(135deg,var(--primary),var(--purple));
+      color:#fff; font-weight:800; font-size:15px; letter-spacing:.02em;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0; box-shadow:var(--shadow-sm);
     }
-    .view-meta-item { display:flex; flex-direction:column; gap:3px; }
+    .view-hd-text { min-width:0; }
+    .view-hd-text .modal-title {
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      max-width:280px;
+    }
+    .view-hd-sub { font-size:11.5px; color:var(--gray-400); font-weight:500; margin-top:1px; }
+
+    .view-meta-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+      gap:10px;
+      margin-bottom:22px;
+    }
+    .view-meta-chip {
+      display:flex; align-items:center; gap:10px;
+      background:var(--gray-50);
+      border:1px solid var(--gray-100);
+      border-radius:var(--radius);
+      padding:11px 13px;
+    }
+    .view-meta-icon {
+      width:34px; height:34px; flex-shrink:0;
+      border-radius:var(--radius-sm);
+      display:flex; align-items:center; justify-content:center;
+      font-size:13px;
+    }
+    .view-meta-icon.blue  { background:var(--primary-50);    color:var(--primary); }
+    .view-meta-icon.gray  { background:var(--gray-200);      color:var(--gray-500); }
+    .view-meta-icon.green { background:var(--success-light); color:var(--success); }
+    .view-meta-icon.red   { background:var(--danger-light);  color:var(--danger); }
+    .view-meta-text { min-width:0; display:flex; flex-direction:column; gap:2px; }
     .view-meta-label {
-      font-size:10.5px; font-weight:700;
+      font-size:10px; font-weight:700;
       text-transform:uppercase; letter-spacing:.05em;
       color:var(--gray-400);
     }
-    .view-meta-val { font-size:13.5px; font-weight:700; color:var(--gray-900); }
-    .view-desc-label {
-      font-size:12.5px; font-weight:700; color:var(--gray-700);
-      margin-bottom:8px; display:block;
+    .view-meta-val {
+      font-size:13px; font-weight:700; color:var(--gray-900);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
+
+    .view-desc-hd { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+    .view-desc-label { font-size:12.5px; font-weight:700; color:var(--gray-700); }
     .view-desc-box {
       background:var(--gray-50);
       border:1px solid var(--gray-200);
@@ -1611,12 +1645,21 @@
 <div class="modal-overlay" id="viewModalOverlay" onclick="handleViewOverlayClick(event)">
   <div class="modal" style="max-width:520px;">
     <div class="modal-hd">
-      <h2 class="modal-title">Entry Details</h2>
+      <div class="view-hd-info">
+        <div class="view-avatar" id="viewAvatar">?</div>
+        <div class="view-hd-text">
+          <h2 class="modal-title" id="viewName">Entry Details</h2>
+          <div class="view-hd-sub">Lending record</div>
+        </div>
+      </div>
       <button class="modal-close" onclick="closeViewModal()"><i class="fas fa-times"></i></button>
     </div>
     <div class="modal-body">
-      <div class="view-meta-row" id="viewMetaRow"></div>
-      <span class="view-desc-label"><i class="fas fa-align-left" style="margin-right:6px;opacity:.7"></i>Description</span>
+      <div class="view-meta-grid" id="viewMetaRow"></div>
+      <div class="view-desc-hd">
+        <div class="view-meta-icon blue" style="width:26px;height:26px;font-size:11px;"><i class="fas fa-align-left"></i></div>
+        <span class="view-desc-label">Description</span>
+      </div>
       <div class="view-desc-box" id="viewDescContent"></div>
     </div>
     <div class="modal-foot">
@@ -2213,27 +2256,42 @@ function editRecord(id) {
 }
 
 // ── View / Description Modal ────────────────────────────────────
+function initials(name) {
+  const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  return parts.slice(0, 2).map(p => p[0].toUpperCase()).join('');
+}
+
 function viewRecord(id) {
   const rec = allRecords.find(r => r.id === id);
   if (!rec) return;
 
+  document.getElementById('viewAvatar').textContent = initials(rec.senderName);
+  document.getElementById('viewName').textContent    = rec.senderName || 'Entry Details';
+
+  const paid = rec.status === 'Paid';
   const metaEl = document.getElementById('viewMetaRow');
   metaEl.innerHTML = `
-    <div class="view-meta-item">
-      <span class="view-meta-label">Name</span>
-      <span class="view-meta-val">${esc(rec.senderName || '—')}</span>
+    <div class="view-meta-chip">
+      <div class="view-meta-icon blue"><i class="fas fa-wallet"></i></div>
+      <div class="view-meta-text">
+        <span class="view-meta-label">Principal</span>
+        <span class="view-meta-val">₹${fmtNum(rec.principal)}</span>
+      </div>
     </div>
-    <div class="view-meta-item">
-      <span class="view-meta-label">Principal</span>
-      <span class="view-meta-val">₹${fmtNum(rec.principal)}</span>
+    <div class="view-meta-chip">
+      <div class="view-meta-icon gray"><i class="fas fa-calendar-alt"></i></div>
+      <div class="view-meta-text">
+        <span class="view-meta-label">Period</span>
+        <span class="view-meta-val">${fmtDate(rec.fromDate)} → ${fmtDate(rec.toDate)}</span>
+      </div>
     </div>
-    <div class="view-meta-item">
-      <span class="view-meta-label">Period</span>
-      <span class="view-meta-val">${fmtDate(rec.fromDate)} → ${fmtDate(rec.toDate)}</span>
-    </div>
-    <div class="view-meta-item">
-      <span class="view-meta-label">Status</span>
-      <span class="view-meta-val">${esc(rec.status || 'Unpaid')}</span>
+    <div class="view-meta-chip">
+      <div class="view-meta-icon ${paid ? 'green' : 'red'}"><i class="fas ${paid ? 'fa-check-circle' : 'fa-clock'}"></i></div>
+      <div class="view-meta-text">
+        <span class="view-meta-label">Status</span>
+        <span class="view-meta-val" style="color:${paid ? 'var(--success)' : 'var(--danger)'}">${esc(rec.status || 'Unpaid')}</span>
+      </div>
     </div>
   `;
 
