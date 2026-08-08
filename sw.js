@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lendtrack-v6';
+const CACHE_NAME = 'lendtrack-v7';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -36,7 +36,10 @@ self.addEventListener('fetch', (e) => {
 
   if (isHTML) {
     e.respondWith(
-      fetch(e.request).then((networkResponse) => {
+      // no-store: bypass the browser's own HTTP cache too, not just this
+      // service worker's Cache Storage, so a stale HTTP-cached response
+      // can't masquerade as "fresh".
+      fetch(e.request, { cache: 'no-store' }).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
           const clone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));

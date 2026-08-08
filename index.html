@@ -26,8 +26,8 @@
       --warning-light: #fef3c7;
       --purple:        #0d9488;
       --purple-light:  #f0fdfa;
-      --indigo:        #6366f1;
-      --indigo-light:  #e0e7ff;
+      --indigo:        #e11d48;
+      --indigo-light:  #ffe4e6;
       --gray-50:  #f8fafc;
       --gray-100: #f1f5f9;
       --gray-200: #e2e8f0;
@@ -67,8 +67,8 @@
       --primary-light: #1e3a8a;
       --purple-light: rgba(45, 212, 191, 0.12);
       --purple: #2dd4bf;
-      --indigo-light: rgba(129, 140, 248, 0.12);
-      --indigo: #818cf8;
+      --indigo-light: rgba(251, 113, 133, 0.12);
+      --indigo: #fb7185;
       --success-light: rgba(16, 185, 129, 0.12);
       --danger-light: rgba(239, 68, 68, 0.12);
       --warning-light: rgba(245, 158, 11, 0.12);
@@ -1593,7 +1593,7 @@
             <div class="fg span2">
               <label class="form-label">Lender's Name <span class="req">*</span></label>
               <input type="text" class="form-input" id="personLenderName"
-                placeholder="e.g. Ravi Kumar" oninput="updatePersonFundLabels()" />
+                placeholder="e.g. Soundraya" oninput="updatePersonFundLabels()" />
             </div>
             <div class="fg">
               <label class="form-label" id="personAmountFundedLabel">Amount Funded</label>
@@ -1762,7 +1762,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Register PWA Service Worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('Service Worker registered'))
+      .then((reg) => {
+        console.log('Service Worker registered');
+        // Force an immediate check for a newer sw.js instead of waiting on
+        // the browser's own (up to 24h) throttled update schedule.
+        reg.update();
+      })
       .catch((err) => console.error('Service Worker registration failed:', err));
   }
 });
