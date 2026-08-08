@@ -22,6 +22,7 @@
  * A  ID            B  Sender Name    C  Principal
  * D  Interest Rate E  Interest Amt   F  From Date
  * G  To Date       H  Days           I  Total Amount   J  Status
+ * ...              R  Description
  */
 
 // ── Configuration ─────────────────────────────────────────────
@@ -34,9 +35,10 @@ const COL = {
   FROM: 5, TO: 6, DAYS: 7, TOTAL: 8, STATUS: 9,
   RATE_TYPE: 10, RATE_MONTHLY: 11, RATE_DAILY: 12,
   IS_APP_MONEY: 13, APP_INTEREST: 14,
-  IS_PERSON_MONEY: 15, PERSON_INTEREST: 16
+  IS_PERSON_MONEY: 15, PERSON_INTEREST: 16,
+  DESCRIPTION: 17
 };
-const TOTAL_COLS = 17;
+const TOTAL_COLS = 18;
 
 // ── Sheet helper ──────────────────────────────────────────────
 function getSheet() {
@@ -51,7 +53,7 @@ function getSheet() {
       'Days', 'Total Amount (₹)', 'Status',
       'Rate Type', 'Monthly Rate (%)', 'Daily Rate (%)',
       'Is App Money', 'App Interest (₹)',
-      'Is Person Money', 'Person Interest (₹)'
+      'Is Person Money', 'Person Interest (₹)', 'Description'
     ];
     sheet.appendRow(headers);
 
@@ -80,6 +82,7 @@ function getSheet() {
     sheet.setColumnWidth(15, 120); // App Interest
     sheet.setColumnWidth(16, 120); // Is Person Money
     sheet.setColumnWidth(17, 130); // Person Interest
+    sheet.setColumnWidth(18, 220); // Description
   }
 
   return sheet;
@@ -163,7 +166,8 @@ function getAllRecords() {
       isAppMoney:     String(row[COL.IS_APP_MONEY]  || 'false'),
       appInterest:    String(row[COL.APP_INTEREST]  || '0'),
       isPersonMoney:  String(row[COL.IS_PERSON_MONEY] || 'false'),
-      personInterest: String(row[COL.PERSON_INTEREST] || '0')
+      personInterest: String(row[COL.PERSON_INTEREST] || '0'),
+      description:    String(row[COL.DESCRIPTION]    || '')
     }));
 
   return { records };
@@ -249,7 +253,8 @@ function buildRow(data) {
     data.isAppMoney  || 'false',
     parseFloat(data.appInterest)    || 0,
     data.isPersonMoney || 'false',
-    parseFloat(data.personInterest) || 0
+    parseFloat(data.personInterest) || 0,
+    data.description || ''
   ];
 }
 

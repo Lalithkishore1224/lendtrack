@@ -130,12 +130,10 @@
     }
     .logo-icon {
       width:42px; height:42px;
-      background:linear-gradient(135deg,var(--primary),var(--purple));
-      border-radius:var(--radius);
       display:flex; align-items:center; justify-content:center;
-      color:#fff; font-size:19px;
       flex-shrink:0;
     }
+    .logo-icon svg { width:100%; height:100%; }
     .logo-text h1 { font-size:15px; font-weight:800; color:var(--gray-900); line-height:1.2; }
     .logo-text span { font-size:11px; color:var(--gray-400); font-weight:400; }
 
@@ -446,6 +444,8 @@
       display:flex; align-items:center; justify-content:center;
       font-size:12px; transition:var(--transition);
     }
+    .act-view   { background:var(--purple-light);  color:var(--purple); }
+    .act-view:hover   { background:var(--purple);    color:#fff; }
     .act-edit   { background:var(--primary-50);   color:var(--primary); }
     .act-edit:hover   { background:var(--primary);   color:#fff; }
     .act-delete { background:var(--danger-light);  color:var(--danger);  }
@@ -517,6 +517,38 @@
       padding-top:16px;
     }
 
+    /* ── View / Description Modal ── */
+    .view-meta-row {
+      display:flex; flex-wrap:wrap; gap:16px;
+      margin-bottom:18px;
+      padding-bottom:16px;
+      border-bottom:1px solid var(--gray-100);
+    }
+    .view-meta-item { display:flex; flex-direction:column; gap:3px; }
+    .view-meta-label {
+      font-size:10.5px; font-weight:700;
+      text-transform:uppercase; letter-spacing:.05em;
+      color:var(--gray-400);
+    }
+    .view-meta-val { font-size:13.5px; font-weight:700; color:var(--gray-900); }
+    .view-desc-label {
+      font-size:12.5px; font-weight:700; color:var(--gray-700);
+      margin-bottom:8px; display:block;
+    }
+    .view-desc-box {
+      background:var(--gray-50);
+      border:1px solid var(--gray-200);
+      border-radius:var(--radius);
+      padding:14px 16px;
+      font-size:13.5px;
+      line-height:1.7;
+      color:var(--gray-700);
+      white-space:pre-wrap;
+      word-break:break-word;
+      min-height:64px;
+    }
+    .view-desc-box.empty { color:var(--gray-400); font-style:italic; }
+
     /* ── Form ── */
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
     .fg { display:flex; flex-direction:column; gap:6px; }
@@ -548,6 +580,7 @@
     .form-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
     .form-input.auto { background:var(--primary-50); border-color:var(--primary-light); color:var(--primary-dark); font-weight:600; }
     .form-input:disabled { background:var(--gray-50); color:var(--gray-400); cursor:not-allowed; }
+    textarea.form-input { resize:vertical; min-height:72px; line-height:1.55; }
 
     /* ── Rate Type Toggle ── */
     .rate-type-toggle {
@@ -1122,7 +1155,13 @@
       <i class="fas fa-times"></i>
     </button>
     <div class="sidebar-logo">
-      <div class="logo-icon"><i class="fas fa-coins"></i></div>
+      <div class="logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="#0d9488"/>
+          <circle cx="50" cy="50" r="38" fill="none" stroke="white" stroke-width="3" stroke-dasharray="6 3"/>
+          <text x="50" y="65" font-family="system-ui, -apple-system, sans-serif" font-size="45" font-weight="900" fill="white" text-anchor="middle">₹</text>
+        </svg>
+      </div>
       <div class="logo-text">
         <h1>LendTrack Pro</h1>
         <span>Interest &amp; Lending Tracker</span>
@@ -1526,6 +1565,13 @@
             <span class="form-hint">Interest paid to the lender person</span>
           </div>
 
+          <!-- Description -->
+          <div class="fg span2">
+            <label class="form-label">Description <span class="form-hint" style="font-weight:400">(optional)</span></label>
+            <textarea class="form-input" id="description" rows="3"
+              placeholder="Add notes about this entry — purpose, agreement terms, reminders…"></textarea>
+          </div>
+
           <!-- Live Preview -->
           <div class="calc-preview">
             <div class="calc-preview-hd"><i class="fas fa-calculator" style="margin-right:6px"></i>Live Calculation · <span id="prevRateTypeLabel" style="text-transform:none;font-weight:600;opacity:.85">Per Month</span></div>
@@ -1561,12 +1607,30 @@
   </div>
 </div>
 
+<!-- View Description Modal -->
+<div class="modal-overlay" id="viewModalOverlay" onclick="handleViewOverlayClick(event)">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-hd">
+      <h2 class="modal-title">Entry Details</h2>
+      <button class="modal-close" onclick="closeViewModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="view-meta-row" id="viewMetaRow"></div>
+      <span class="view-desc-label"><i class="fas fa-align-left" style="margin-right:6px;opacity:.7"></i>Description</span>
+      <div class="view-desc-box" id="viewDescContent"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeViewModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============================================================
      JAVASCRIPT
 ============================================================ -->
 <script>
 // ── Config ──────────────────────────────────────────────────
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz6hPStWKTbJO1drF7ae1fJl1b49Ga7mmRqZikt8HgdDmpHRcK8v0C_RF5FilL-aqFTcQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8B3EAuRtCiwD7njwlSpYLrv8Y_1yNrZ3VuM5wf6fJUQXUqL95bpWqpj5r0k2jd-lgVQ/exec';
 
 // ── State ────────────────────────────────────────────────────
 let allRecords     = [];
@@ -1991,6 +2055,7 @@ function openModal(rec = null) {
     document.getElementById('toDate').value         = rec.toDate        || '';
     document.getElementById('numDays').value        = rec.numDays       || '';
     document.getElementById('interestAmount').value = rec.interestAmount || '';
+    document.getElementById('description').value    = rec.description   || '';
 
     const isApp = rec.isAppMoney === 'true' || rec.isAppMoney === true;
     const isPerson = rec.isPersonMoney === 'true' || rec.isPersonMoney === true;
@@ -2074,11 +2139,13 @@ async function handleSubmit(e) {
   const isPersonMoney = fundingSource === 'person';
   const appInterest = isAppMoney ? (parseFloat(document.getElementById('appInterest').value) || 0) : 0;
   const personInterest = isPersonMoney ? (parseFloat(document.getElementById('personInterest').value) || 0) : 0;
+  const description = document.getElementById('description').value.trim();
 
   const payload = {
     action:         editingId ? 'edit' : 'add',
     id:             editingId || genId(),
     senderName,
+    description,
     principal:      principal.toFixed(2),
     interestRate:   interestRate.toFixed(4),
     rateMonthly:    rateMonthly.toFixed(4),
@@ -2143,6 +2210,45 @@ async function toggleStatus(id, current) {
 function editRecord(id) {
   const rec = allRecords.find(r => r.id === id);
   if (rec) openModal(rec);
+}
+
+// ── View / Description Modal ────────────────────────────────────
+function viewRecord(id) {
+  const rec = allRecords.find(r => r.id === id);
+  if (!rec) return;
+
+  const metaEl = document.getElementById('viewMetaRow');
+  metaEl.innerHTML = `
+    <div class="view-meta-item">
+      <span class="view-meta-label">Name</span>
+      <span class="view-meta-val">${esc(rec.senderName || '—')}</span>
+    </div>
+    <div class="view-meta-item">
+      <span class="view-meta-label">Principal</span>
+      <span class="view-meta-val">₹${fmtNum(rec.principal)}</span>
+    </div>
+    <div class="view-meta-item">
+      <span class="view-meta-label">Period</span>
+      <span class="view-meta-val">${fmtDate(rec.fromDate)} → ${fmtDate(rec.toDate)}</span>
+    </div>
+    <div class="view-meta-item">
+      <span class="view-meta-label">Status</span>
+      <span class="view-meta-val">${esc(rec.status || 'Unpaid')}</span>
+    </div>
+  `;
+
+  const descEl = document.getElementById('viewDescContent');
+  const desc = (rec.description || '').trim();
+  descEl.textContent = desc || 'No description added for this entry.';
+  descEl.classList.toggle('empty', !desc);
+
+  document.getElementById('viewModalOverlay').classList.add('show');
+}
+function closeViewModal() {
+  document.getElementById('viewModalOverlay').classList.remove('show');
+}
+function handleViewOverlayClick(e) {
+  if (e.target === document.getElementById('viewModalOverlay')) closeViewModal();
 }
 
 // ── Table Render ──────────────────────────────────────────────
@@ -2244,6 +2350,7 @@ function renderTable() {
       </td>
       <td>
         <div class="act-wrap">
+          <button class="act-btn act-view"   onclick="viewRecord('${r.id}')"    title="View description"><i class="fas fa-eye"></i></button>
           <button class="act-btn act-edit"   onclick="editRecord('${r.id}')"    title="Edit"><i class="fas fa-pen"></i></button>
           <button class="act-btn act-delete" onclick="confirmDelete('${r.id}')" title="Delete"><i class="fas fa-trash"></i></button>
         </div>
@@ -2349,6 +2456,7 @@ function renderTable() {
       <div class="mc-footer">
         <span style="font-size:11px;color:var(--gray-400)">#${i + 1}</span>
         <div class="mc-actions">
+          <button class="act-btn act-view"   onclick="viewRecord('${r.id}')"    title="View description"><i class="fas fa-eye"></i></button>
           <button class="act-btn act-edit"   onclick="editRecord('${r.id}')"    title="Edit"><i class="fas fa-pen"></i></button>
           <button class="act-btn act-delete" onclick="confirmDelete('${r.id}')" title="Delete"><i class="fas fa-trash"></i></button>
         </div>
@@ -2461,12 +2569,13 @@ function animNum(id, target, currency) {
 // ── Export CSV ────────────────────────────────────────────────
 function exportCSV() {
   if (!allRecords.length) { toast('No records to export.', 'warning'); return; }
-  const hdr  = ['ID','Sender Name','Principal','Interest Rate %','Interest Amount','From Date','To Date','Days','Total Amount','Status','Is App Money','App Interest','Is Person Money','Person Interest'];
+  const hdr  = ['ID','Sender Name','Principal','Interest Rate %','Interest Amount','From Date','To Date','Days','Total Amount','Status','Is App Money','App Interest','Is Person Money','Person Interest','Description'];
   const rows = allRecords.map(r => [
     r.id, r.senderName, r.principal, r.interestRate,
     r.interestAmount, r.fromDate, r.toDate, r.numDays, r.totalAmount, r.status,
     r.isAppMoney || 'false', r.appInterest || '0.00',
-    r.isPersonMoney || 'false', r.personInterest || '0.00'
+    r.isPersonMoney || 'false', r.personInterest || '0.00',
+    r.description || ''
   ]);
   const csv  = [hdr, ...rows].map(row => row.map(v => `"${v ?? ''}"`).join(',')).join('\n');
   const a    = Object.assign(document.createElement('a'), {
