@@ -38,9 +38,9 @@ const COL = {
   IS_APP_MONEY: 13, APP_INTEREST: 14,
   IS_PERSON_MONEY: 15, PERSON_INTEREST: 16,
   DESCRIPTION: 17, PERSON_LENDER_NAME: 18, PERSON_AMOUNT_FUNDED: 19,
-  APP_AMOUNT_FUNDED: 20
+  APP_AMOUNT_FUNDED: 20, SELF_AMOUNT_FUNDED: 21
 };
-const TOTAL_COLS = 21;
+const TOTAL_COLS = 22;
 
 // ── Sheet helper ──────────────────────────────────────────────
 function getSheet() {
@@ -56,7 +56,8 @@ function getSheet() {
       'Rate Type', 'Monthly Rate (%)', 'Daily Rate (%)',
       'Is App Money', 'App Interest (₹)',
       'Is Person Money', 'Person Interest (₹)', 'Description',
-      'Lender Name', 'Amount Funded (₹)', 'App Amount Funded (₹)'
+      'Lender Name', 'Amount Funded (₹)', 'App Amount Funded (₹)',
+      'Self Amount Funded (₹)'
     ];
     sheet.appendRow(headers);
 
@@ -89,6 +90,7 @@ function getSheet() {
     sheet.setColumnWidth(19, 150); // Lender Name
     sheet.setColumnWidth(20, 140); // Amount Funded
     sheet.setColumnWidth(21, 150); // App Amount Funded
+    sheet.setColumnWidth(22, 150); // Self Amount Funded
   }
 
   return sheet;

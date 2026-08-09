@@ -1,15 +1,19 @@
-const CACHE_NAME = 'lendtrack-v7';
+const CACHE_NAME = 'lendtrack-v9';
 const ASSETS = [
   './index.html',
   './manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap'
+  'https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap'
 ];
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    // Cache each asset individually: one failing CDN request must not
+    // abort the whole install (addAll rejects wholesale on any failure).
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.allSettled(ASSETS.map((asset) => cache.add(asset)))
+    )
   );
 });
 
@@ -60,7 +64,9 @@ self.addEventListener('fetch', (e) => {
         }
         return networkResponse;
       }).catch(() => {
-        // Ignore fetch errors during offline periods
+        // Offline and not in cache — resolve with a real error response;
+        // resolving with undefined would make respondWith() throw.
+        return Response.error();
       });
     })
   );

@@ -10,7 +10,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%230d9488'/><circle cx='50' cy='50' r='38' fill='none' stroke='white' stroke-width='3' stroke-dasharray='6 3'/><text x='50' y='65' font-family='system-ui, -apple-system, sans-serif' font-size='45' font-weight='900' fill='white' text-anchor='middle'>₹</text></svg>">
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     /* ── Variables ── */
     :root {
@@ -95,7 +95,7 @@
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     html { scroll-behavior:smooth; }
     body {
-      font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+      font-family:'Google Sans','Manrope',-apple-system,BlinkMacSystemFont,sans-serif;
       background:var(--gray-50);
       color:var(--gray-800);
       line-height:1.5;
@@ -511,11 +511,13 @@
     .modal-close:hover { background:var(--gray-200); color:var(--gray-700); }
     .modal-body { padding:22px 24px; }
     .modal-foot {
-      padding:0 24px 22px;
-      display:flex; gap:10px; justify-content:flex-end;
+      padding:14px 24px;
+      display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+      justify-content:flex-end;
       border-top:1px solid var(--gray-100);
-      padding-top:16px;
+      position:sticky; bottom:0; background:var(--white); z-index:1;
     }
+    .modal-foot-btns { display:flex; gap:10px; flex-shrink:0; }
 
     /* ── View / Description Modal ── */
     .view-hd-info { display:flex; align-items:center; gap:12px; min-width:0; }
@@ -587,9 +589,22 @@
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
     .fg { display:flex; flex-direction:column; gap:6px; }
     .fg.span2 { grid-column:1/-1; }
-    .form-label { font-size:12.5px; font-weight:700; color:var(--gray-700); }
+    .form-label { font-size:12.5px; font-weight:600; color:var(--gray-700); }
     .req { color:var(--danger); }
     .form-hint { font-size:11px; color:var(--gray-400); }
+    .label-opt { font-weight:500; color:var(--gray-400); font-size:11px; }
+
+    /* ── Form section headers ── */
+    .form-section-hd {
+      grid-column:1/-1;
+      display:flex; align-items:center; gap:12px;
+      font-size:11px; font-weight:800;
+      text-transform:uppercase; letter-spacing:.08em;
+      color:var(--gray-400);
+      margin-top:8px;
+    }
+    .form-section-hd::after { content:''; flex:1; height:1px; background:var(--gray-200); }
+    .form-grid > .form-section-hd:first-child { margin-top:0; }
 
     .input-wrap { position:relative; }
     .input-pre {
@@ -601,7 +616,7 @@
       color:var(--gray-400); font-size:12px; pointer-events:none;
     }
     .has-pre .form-input { padding-left:26px; }
-    .has-suf .form-input { padding-right:30px; }
+    .has-suf .form-input { padding-right:48px; }
 
     .form-input {
       width:100%; padding:10px 14px;
@@ -611,66 +626,201 @@
       background:var(--white); outline:none;
       transition:var(--transition);
     }
+    .form-input:hover { border-color:var(--gray-300); }
     .form-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
     .form-input.auto { background:var(--primary-50); border-color:var(--primary-light); color:var(--primary-dark); font-weight:600; }
     .form-input:disabled { background:var(--gray-50); color:var(--gray-400); cursor:not-allowed; }
     textarea.form-input { resize:vertical; min-height:72px; line-height:1.55; }
 
-    /* ── Rate Type Toggle ── */
+    /* ── Segmented Toggle (rate type) ── */
     .rate-type-toggle {
-      display:flex; gap:0;
-      border:1.5px solid var(--gray-200);
+      display:flex; gap:4px;
+      padding:4px;
+      background:var(--gray-100);
+      border:1px solid var(--gray-200);
       border-radius:var(--radius);
-      overflow:hidden;
-      background:var(--gray-50);
     }
     .rate-type-toggle input[type=radio] { display:none; }
     .rate-type-toggle label {
       flex:1; text-align:center;
-      padding:9px 10px;
-      font-size:12px; font-weight:700;
+      padding:8px 8px;
+      font-size:12.5px; font-weight:600;
       color:var(--gray-500);
       cursor:pointer;
       transition:var(--transition);
       user-select:none;
-      border-right:1px solid var(--gray-200);
+      border-radius:var(--radius-sm);
       display:flex; align-items:center; justify-content:center; gap:5px;
     }
-    .rate-type-toggle label:last-of-type { border-right:none; }
+    .rate-type-toggle label:hover { color:var(--gray-800); }
     .rate-type-toggle input[type=radio]:checked + label {
       background:var(--primary);
       color:#fff;
+      box-shadow:0 1px 3px rgba(37,99,235,.35);
     }
-    .rate-type-toggle input[type=radio]#rtMonth:checked + label { background:var(--primary); }
-    .rate-type-toggle input[type=radio]#rtDay:checked   + label { background:var(--purple); }
-    .rate-type-toggle input[type=radio]#rtBoth:checked  + label { background:linear-gradient(90deg,var(--primary),var(--purple)); color:#fff;}
+
+    /* ── Funding source checkbox list ── */
+    .fund-source-list {
+      grid-column:1/-1;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-top:2px;
+    }
+    .fund-source-opt {
+      display:flex;
+      align-items:center;
+      gap:11px;
+      padding:9px 12px;
+      background:var(--white);
+      border:1.5px solid var(--gray-200);
+      border-radius:var(--radius);
+      cursor:pointer;
+      transition:var(--transition);
+      user-select:none;
+    }
+    .fund-source-opt:hover { border-color:var(--gray-300); }
+    .fund-source-opt input[type=checkbox] { display:none; }
+    .fund-source-opt .fs-box {
+      width:19px; height:19px;
+      border:2px solid var(--gray-300);
+      border-radius:5px;
+      background:var(--white);
+      display:inline-flex; align-items:center; justify-content:center;
+      color:#fff; font-size:10px;
+      transition:var(--transition);
+      flex-shrink:0;
+    }
+    .fund-source-opt .fs-box i { opacity:0; transform:scale(.5); transition:var(--transition); }
+    .fund-source-opt input:checked + .fs-box {
+      background:var(--primary);
+      border-color:var(--primary);
+    }
+    .fund-source-opt input:checked + .fs-box i { opacity:1; transform:scale(1); }
+    .fund-source-opt.is-checked {
+      border-color:var(--primary);
+      background:var(--primary-50);
+    }
+    .fund-source-opt .fs-label { display:flex; flex-direction:column; gap:1px; min-width:0; }
+    .fund-source-opt .fs-name { font-size:13px; font-weight:700; color:var(--gray-800); }
+    .fund-source-opt .fs-desc { font-size:11px; color:var(--gray-500); font-weight:500; }
+    /* Per-source accents */
+    .fund-source-opt.app input:checked + .fs-box {
+      background:var(--purple);
+      border-color:var(--purple);
+    }
+    .fund-source-opt.person input:checked + .fs-box {
+      background:var(--indigo);
+      border-color:var(--indigo);
+    }
+    .fund-source-opt.app.is-checked {
+      border-color:var(--purple);
+      background:var(--purple-light);
+    }
+    .fund-source-opt.person.is-checked {
+      border-color:var(--indigo);
+      background:var(--indigo-light);
+    }
+
+    /* Live funding split readout inside the summary */
+    .fund-split-line {
+      display:none;
+      grid-column:1/-1;
+      margin-top:8px;
+      padding:6px 10px;
+      border-radius:var(--radius-sm);
+      font-size:11.5px;
+      color:var(--gray-600);
+      font-weight:600;
+      white-space:nowrap; overflow-x:auto;
+      background:var(--gray-50);
+      border:1px solid var(--gray-200);
+    }
+    .fund-split-line .fs-chip {
+      display:inline-flex; align-items:center; gap:3px;
+      padding:1px 7px; margin-left:4px;
+      border-radius:20px; font-size:10.5px; font-weight:700;
+    }
+    .fund-split-line .fs-chip.fs-self   { background:var(--primary-light);   color:var(--primary); }
+    .fund-split-line .fs-chip.fs-app    { background:var(--purple-light);    color:var(--purple); }
+    .fund-split-line .fs-chip.fs-person { background:var(--indigo-light);    color:var(--indigo); }
+    .fund-split-line .fs-eq { color:var(--gray-400); margin:0 3px; }
+    .fund-split-line.fs-ok {
+      color:var(--success);
+      border-color:var(--success-light);
+      background:var(--success-light);
+    }
+    .fund-split-line.fs-warn {
+      color:var(--danger);
+      border-color:var(--danger-light);
+      background:var(--danger-light);
+    }
 
     .dual-rate-row {
       display:none;
       grid-column:1/-1;
-      grid-template-columns:1fr 1fr;
+      grid-template-columns:repeat(3,1fr);
       gap:14px;
     }
     .dual-rate-row.show { display:grid; }
 
-    /* Calc Preview */
-    .calc-preview {
+    /* From / To / Days triple row */
+    .triple-row {
       grid-column:1/-1;
-      background:linear-gradient(135deg,var(--primary-50),#faf5ff);
-      border:1.5px solid var(--primary-light);
+      display:grid;
+      grid-template-columns:1fr 1fr 0.72fr;
+      gap:14px;
+    }
+
+    /* Conditional funding details panel */
+    .fund-panel {
+      grid-column:1/-1;
+      background:var(--gray-50);
+      border:1px solid var(--gray-200);
       border-radius:var(--radius-lg);
-      padding:16px 18px;
+      padding:16px;
     }
-    .calc-preview-hd {
-      font-size:11px; font-weight:800;
-      text-transform:uppercase; letter-spacing:.07em;
+    .fund-panel-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+    /* ── Live summary (pinned in modal footer) ── */
+    .calc-preview {
+      flex:1 1 240px;
+      min-width:0;
+      background:var(--gray-50);
+      border:1px solid var(--gray-200);
+      border-radius:var(--radius);
+      padding:10px 14px;
+    }
+    .calc-sum-hd {
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      margin-bottom:8px;
+    }
+    .calc-sum-title {
+      font-size:10px; font-weight:800;
+      text-transform:uppercase; letter-spacing:.08em;
+      color:var(--gray-400);
+    }
+    .rate-pill {
+      font-size:10px; font-weight:800;
+      text-transform:uppercase; letter-spacing:.06em;
       color:var(--primary);
-      margin-bottom:12px;
+      background:var(--primary-50);
+      border:1px solid var(--primary-light);
+      padding:3px 9px; border-radius:99px;
+      white-space:nowrap;
     }
-    .calc-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-    .calc-item { text-align:center; }
-    .calc-item-label { font-size:11px; color:var(--gray-500); margin-bottom:4px; }
-    .calc-item-val { font-size:17px; font-weight:800; color:var(--gray-900); }
+    .calc-row {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(110px, 1fr));
+      gap:10px 14px;
+    }
+    .calc-item { text-align:left; min-width:0; }
+    .calc-item-label {
+      font-size:10px; font-weight:700;
+      text-transform:uppercase; letter-spacing:.05em;
+      color:var(--gray-400); margin-bottom:2px;
+    }
+    .calc-item-val { font-size:14px; font-weight:800; color:var(--gray-900); white-space:nowrap; }
     .calc-item-val.accent { color:var(--primary); }
 
     /* ── Confirm dialog ── */
@@ -895,7 +1045,7 @@
 
       .form-grid { grid-template-columns:1fr; }
       .fg.span2 { grid-column:1; }
-      .calc-row { grid-template-columns:repeat(3,1fr); }
+      .dual-rate-row.show, .triple-row, .fund-panel-grid { grid-template-columns:1fr; }
       .page-content { padding:14px; }
       .topbar { padding:0 14px; height:58px; }
       .table-toolbar {
@@ -938,7 +1088,6 @@
       .stat-label { font-size:11.5px; }
       .stat-meta  { font-size:10.5px; }
 
-      .calc-row { grid-template-columns:1fr; gap:8px; }
       .topbar-right .btn span { display:none; }
       .topbar-right .btn { padding:8px 10px; }
 
@@ -949,8 +1098,10 @@
       /* modal tweaks */
       .modal-hd   { padding:18px 18px 12px; }
       .modal-body { padding:16px 18px; }
-      .modal-foot { padding:0 18px 18px; padding-top:12px; }
+      .modal-foot { padding:12px 18px 16px; }
       .modal-foot .btn { flex:1; justify-content:center; }
+      .modal-foot-btns { width:100%; }
+      .calc-preview { flex:1 1 100%; }
 
       .mc-grid { grid-template-columns:1fr 1fr; }
     }
@@ -960,41 +1111,6 @@
       .mc-grid { grid-template-columns:1fr 1fr; }
       .topbar { height:54px; }
       .page-title { font-size:15px; }
-    }
-
-    /* ── Funding Source Segmented Toggle Styles ── */
-    .funding-source-toggle {
-      display: flex;
-      background: var(--gray-100);
-      padding: 3px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--gray-200);
-    }
-    .funding-source-toggle label {
-      flex: 1;
-      text-align: center;
-      padding: 8px 6px;
-      font-size: 11.5px;
-      font-weight: 700;
-      color: var(--gray-500);
-      cursor: pointer;
-      border-radius: 4px;
-      transition: var(--transition);
-    }
-    .funding-source-toggle input {
-      display: none;
-    }
-    .funding-source-toggle input#fundSelf:checked + label {
-      background: var(--primary);
-      color: #fff;
-    }
-    .funding-source-toggle input#fundApp:checked + label {
-      background: var(--purple);
-      color: #fff;
-    }
-    .funding-source-toggle input#fundPerson:checked + label {
-      background: var(--indigo);
-      color: #fff;
     }
 
     /* Highlight rows and cards (App Funding - Teal) */
@@ -1067,16 +1183,6 @@
     }
     body.dark-mode .real-profit-sub {
       color: #2dd4bf;
-    }
-
-    /* Dynamic columns for preview box */
-    .calc-row.four-cols {
-      grid-template-columns: repeat(4, 1fr);
-    }
-    @media (max-width: 480px) {
-      .calc-row.four-cols {
-        grid-template-columns: 1fr;
-      }
     }
 
     /* ── Premium Uiverse Theme Toggle Switch Styles ── */
@@ -1193,7 +1299,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="45" fill="#0d9488"/>
           <circle cx="50" cy="50" r="38" fill="none" stroke="white" stroke-width="3" stroke-dasharray="6 3"/>
-          <text x="50" y="65" font-family="system-ui, -apple-system, sans-serif" font-size="45" font-weight="900" fill="white" text-anchor="middle">₹</text>
+          <text x="50" y="65" font-family="'Google Sans', Manrope, system-ui, -apple-system, sans-serif" font-size="45" font-weight="900" fill="white" text-anchor="middle">₹</text>
         </svg>
       </div>
       <div class="logo-text">
@@ -1467,16 +1573,19 @@
         <input type="hidden" id="editId" />
         <div class="form-grid">
 
+          <!-- ── Section: Borrower & Amount ── -->
+          <div class="form-section-hd">Borrower &amp; Amount</div>
+
           <!-- Sender Name -->
           <div class="fg span2">
-            <label class="form-label">Borrower / Sender Name <span class="req">*</span></label>
+            <label class="form-label">Borrower / Sender Name</label>
             <input type="text" class="form-input" id="senderName"
               placeholder="e.g. John Smith" required />
           </div>
 
           <!-- Principal -->
           <div class="fg">
-            <label class="form-label">Principal Amount <span class="req">*</span></label>
+            <label class="form-label">Principal Amount</label>
             <div class="input-wrap has-pre">
               <span class="input-pre">₹</span>
               <input type="number" class="form-input" id="principal"
@@ -1485,16 +1594,30 @@
           </div>
 
           <!-- Rate Type Toggle -->
-          <div class="fg span2">
-            <label class="form-label">Interest Rate Type <span class="req">*</span></label>
+          <div class="fg">
+            <label class="form-label">Interest Rate Type</label>
             <div class="rate-type-toggle">
               <input type="radio" name="rateType" id="rtMonth" value="monthly" checked onchange="onRateTypeChange()" />
-              <label for="rtMonth"><i class="fas fa-calendar-alt"></i> Per Month</label>
+              <label for="rtMonth">Per Month</label>
               <input type="radio" name="rateType" id="rtDay" value="daily" onchange="onRateTypeChange()" />
-              <label for="rtDay"><i class="fas fa-sun"></i> Per Day</label>
+              <label for="rtDay">Per Day</label>
               <input type="radio" name="rateType" id="rtBoth" value="both" onchange="onRateTypeChange()" />
-              <label for="rtBoth"><i class="fas fa-layer-group"></i> Both</label>
+              <label for="rtBoth">Both</label>
             </div>
+          </div>
+
+          <!-- ── Section: Interest & Schedule ── -->
+          <div class="form-section-hd">Interest &amp; Schedule</div>
+
+          <!-- Interest Amount (paired with rate; moved into dual row in "Both" mode) -->
+          <div class="fg" id="interestAmountField">
+            <label class="form-label">Interest Amount</label>
+            <div class="input-wrap has-pre">
+              <span class="input-pre">₹</span>
+              <input type="number" class="form-input" id="interestAmount"
+                placeholder="Auto" step="0.01" min="0" oninput="onInterestInput()" />
+            </div>
+            <span class="form-hint">Auto-calculated &middot; edit to derive rate</span>
           </div>
 
           <!-- Single Rate (Per Month or Per Day) -->
@@ -1505,22 +1628,6 @@
                 placeholder="e.g. 2" step="0.0001" min="0" oninput="onRateInput()" />
               <span class="input-suf" id="singleRateSuf">% p.m.</span>
             </div>
-            <span class="form-hint">Auto-calculated if Interest Amount is filled</span>
-          </div>
-
-          <!-- placeholder to keep grid balanced when single mode -->
-          <div class="fg" id="singleRatePlaceholder"></div>
-
-          <!-- From Date -->
-          <div class="fg">
-            <label class="form-label">From Date <span class="req">*</span></label>
-            <input type="date" class="form-input" id="fromDate" required oninput="autoCalc()" />
-          </div>
-
-          <!-- To Date -->
-          <div class="fg">
-            <label class="form-label">To Date <span class="req">*</span></label>
-            <input type="date" class="form-input" id="toDate" required oninput="autoCalc()" />
           </div>
 
           <!-- Dual Rates row (Both mode) -->
@@ -1543,127 +1650,169 @@
             </div>
           </div>
 
-          <!-- Number of Days -->
-          <div class="fg">
-            <label class="form-label">Number of Days</label>
-            <input type="number" class="form-input auto" id="numDays"
-              placeholder="Auto" min="1" oninput="onDaysInput()" />
-            <span class="form-hint">Auto-filled from dates</span>
-          </div>
-
-          <!-- Interest Amount -->
-          <div class="fg">
-            <label class="form-label">Interest Amount</label>
-            <div class="input-wrap has-pre">
-              <span class="input-pre">₹</span>
-              <input type="number" class="form-input" id="interestAmount"
-                placeholder="Auto" step="0.01" min="0" oninput="onInterestInput()" />
+          <!-- From / To / Days -->
+          <div class="triple-row">
+            <div class="fg">
+              <label class="form-label">From Date</label>
+              <input type="date" class="form-input" id="fromDate" required oninput="autoCalc()" />
             </div>
-            <span class="form-hint">Enter manually to compute rate</span>
+            <div class="fg">
+              <label class="form-label">To Date</label>
+              <input type="date" class="form-input" id="toDate" required oninput="autoCalc()" />
+            </div>
+            <div class="fg">
+              <label class="form-label">Days</label>
+              <input type="number" class="form-input auto" id="numDays"
+                placeholder="Auto" min="1" oninput="onDaysInput()" />
+            </div>
           </div>
 
-          <!-- Funding Source Segmented Toggle -->
+          <!-- ── Section: Funding Source ── -->
+          <div class="form-section-hd">Funding Source</div>
+
+          <!-- Funding Source Selection -->
           <div class="fg span2">
-            <label class="form-label">Funding Source</label>
-            <div class="funding-source-toggle">
-              <input type="radio" id="fundSelf" name="fundingSource" value="self" checked onchange="toggleFundingFields()" />
-              <label for="fundSelf">Self-Funded</label>
-              
-              <input type="radio" id="fundApp" name="fundingSource" value="app" onchange="toggleFundingFields()" />
-              <label for="fundApp">App-Funded</label>
-              
-              <input type="radio" id="fundPerson" name="fundingSource" value="person" onchange="toggleFundingFields()" />
-              <label for="fundPerson">Person-Funded</label>
+            <label class="form-label">Funding Sources <span class="label-opt">(select all that apply)</span></label>
+            <div class="fund-source-list">
+              <label class="fund-source-opt">
+                <input type="checkbox" id="fundSelf" onchange="toggleFundingFields()" />
+                <span class="fs-box"><i class="fas fa-check"></i></span>
+                <span class="fs-label">
+                  <span class="fs-name">Self</span>
+                  <span class="fs-desc">Your own money</span>
+                </span>
+              </label>
+              <label class="fund-source-opt app">
+                <input type="checkbox" id="fundApp" onchange="toggleFundingFields()" />
+                <span class="fs-box"><i class="fas fa-check"></i></span>
+                <span class="fs-label">
+                  <span class="fs-name">App</span>
+                  <span class="fs-desc">Borrowed from a credit app</span>
+                </span>
+              </label>
+              <label class="fund-source-opt person">
+                <input type="checkbox" id="fundPerson" onchange="toggleFundingFields()" />
+                <span class="fs-box"><i class="fas fa-check"></i></span>
+                <span class="fs-label">
+                  <span class="fs-name">Person</span>
+                  <span class="fs-desc">Borrowed from a person</span>
+                </span>
+              </label>
+            </div>
+            <span class="form-hint">Tally rule: <strong>Self + App + Person = Principal</strong>. Skip Self if it's fully borrowed.</span>
+          </div>
+
+          <!-- Self Funded Panel -->
+          <div class="fund-panel" id="selfAmountRow" style="display: none;">
+            <div class="fund-panel-grid">
+              <div class="fg">
+                <label class="form-label">Amount From Your Own Money</label>
+                <div class="input-wrap has-pre">
+                  <span class="input-pre">₹</span>
+                  <input type="number" class="form-input" id="selfAmountFunded"
+                    placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+                </div>
+                <span class="form-hint" id="selfAmountHint">Your own contribution to this loan</span>
+              </div>
             </div>
           </div>
 
-          <!-- App Funded Fields -->
-          <div id="appInterestRow" style="display: none;">
-            <div class="fg">
-              <label class="form-label">Amount Got From App</label>
-              <div class="input-wrap has-pre">
-                <span class="input-pre">₹</span>
-                <input type="number" class="form-input" id="appAmountFunded"
-                  placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+          <!-- App Funded Panel -->
+          <div class="fund-panel" id="appInterestRow" style="display: none;">
+            <div class="fund-panel-grid">
+              <div class="fg">
+                <label class="form-label">Amount Got From App</label>
+                <div class="input-wrap has-pre">
+                  <span class="input-pre">₹</span>
+                  <input type="number" class="form-input" id="appAmountFunded"
+                    placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+                </div>
+                <span class="form-hint">Amount you borrowed from the app</span>
               </div>
-              <span class="form-hint">Amount you borrowed from the app</span>
-            </div>
-            <div class="fg">
-              <label class="form-label">App Interest Amount <span class="req">*</span></label>
-              <div class="input-wrap has-pre">
-                <span class="input-pre">₹</span>
-                <input type="number" class="form-input" id="appInterest"
-                  placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+              <div class="fg">
+                <label class="form-label">App Interest Amount</label>
+                <div class="input-wrap has-pre">
+                  <span class="input-pre">₹</span>
+                  <input type="number" class="form-input" id="appInterest"
+                    placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+                </div>
+                <span class="form-hint">Interest charged by the credit app</span>
               </div>
-              <span class="form-hint">Interest charged by the credit app</span>
             </div>
           </div>
 
-          <!-- Person Funded Fields -->
-          <div id="personInterestRow" style="display: none;">
-            <div class="fg span2">
-              <label class="form-label">Lender's Name <span class="req">*</span></label>
-              <input type="text" class="form-input" id="personLenderName"
-                placeholder="e.g. Soundraya" oninput="updatePersonFundLabels()" />
-            </div>
-            <div class="fg">
-              <label class="form-label" id="personAmountFundedLabel">Amount Funded</label>
-              <div class="input-wrap has-pre">
-                <span class="input-pre">₹</span>
-                <input type="number" class="form-input" id="personAmountFunded"
-                  placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+          <!-- Person Funded Panel -->
+          <div class="fund-panel" id="personInterestRow" style="display: none;">
+            <div class="fund-panel-grid">
+              <div class="fg span2">
+                <label class="form-label">Lender's Name</label>
+                <input type="text" class="form-input" id="personLenderName"
+                  placeholder="e.g. Soundraya" oninput="updatePersonFundLabels()" />
               </div>
-              <span class="form-hint" id="personAmountFundedHint">Amount you borrowed for this loan</span>
-            </div>
-            <div class="fg">
-              <label class="form-label" id="personInterestLabel">Person Interest Amount <span class="req">*</span></label>
-              <div class="input-wrap has-pre">
-                <span class="input-pre">₹</span>
-                <input type="number" class="form-input" id="personInterest"
-                  placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+              <div class="fg">
+                <label class="form-label" id="personAmountFundedLabel">Amount Funded</label>
+                <div class="input-wrap has-pre">
+                  <span class="input-pre">₹</span>
+                  <input type="number" class="form-input" id="personAmountFunded"
+                    placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+                </div>
+                <span class="form-hint" id="personAmountFundedHint">Amount you borrowed for this loan</span>
               </div>
-              <span class="form-hint" id="personInterestHint">Interest paid to the lender person</span>
+              <div class="fg">
+                <label class="form-label" id="personInterestLabel">Person Interest Amount</label>
+                <div class="input-wrap has-pre">
+                  <span class="input-pre">₹</span>
+                  <input type="number" class="form-input" id="personInterest"
+                    placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+                </div>
+                <span class="form-hint" id="personInterestHint">Interest paid to the lender person</span>
+              </div>
             </div>
           </div>
 
           <!-- Description -->
           <div class="fg span2">
-            <label class="form-label">Description <span class="form-hint" style="font-weight:400">(optional)</span></label>
-            <textarea class="form-input" id="description" rows="3"
+            <label class="form-label">Description <span class="label-opt">(optional)</span></label>
+            <textarea class="form-input" id="description" rows="2"
               placeholder="Add notes about this entry — purpose, agreement terms, reminders…"></textarea>
-          </div>
-
-          <!-- Live Preview -->
-          <div class="calc-preview">
-            <div class="calc-preview-hd"><i class="fas fa-calculator" style="margin-right:6px"></i>Live Calculation · <span id="prevRateTypeLabel" style="text-transform:none;font-weight:600;opacity:.85">Per Month</span></div>
-            <div class="calc-row">
-              <div class="calc-item">
-                <div class="calc-item-label">Interest Amount</div>
-                <div class="calc-item-val" id="prevInterest">₹0.00</div>
-              </div>
-              <div class="calc-item" id="prevRealProfitItem" style="display: none;">
-                <div class="calc-item-label" id="prevRealProfitLabel" style="color:var(--purple)">Net Profit</div>
-                <div class="calc-item-val" id="prevRealProfit" style="color:var(--purple); font-weight:800;">₹0.00</div>
-              </div>
-              <div class="calc-item">
-                <div class="calc-item-label" id="prevRateLabel">Rate (p.m.)</div>
-                <div class="calc-item-val" id="prevRate">0.00%</div>
-              </div>
-              <div class="calc-item">
-                <div class="calc-item-label">Total Amount</div>
-                <div class="calc-item-val accent" id="prevTotal">₹0.00</div>
-              </div>
-            </div>
           </div>
 
         </div>
       </form>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="handleSubmit(event)">
-        <i class="fas fa-save"></i> Save Entry
-      </button>
+      <!-- Live summary pinned to footer -->
+      <div class="calc-preview">
+        <div class="calc-sum-hd">
+          <span class="calc-sum-title">Live Summary</span>
+          <span class="rate-pill" id="prevRateTypeLabel">Per Month</span>
+        </div>
+        <div class="calc-row">
+          <div class="calc-item">
+            <div class="calc-item-label">Interest</div>
+            <div class="calc-item-val" id="prevInterest">₹0.00</div>
+          </div>
+          <div class="calc-item">
+            <div class="calc-item-label" id="prevRateLabel">Rate (p.m.)</div>
+            <div class="calc-item-val" id="prevRate">0.00%</div>
+          </div>
+          <div class="calc-item" id="prevRealProfitItem" style="display: none;">
+            <div class="calc-item-label" id="prevRealProfitLabel" style="color:var(--purple)">Net Profit</div>
+            <div class="calc-item-val" id="prevRealProfit" style="color:var(--purple); font-weight:800;">₹0.00</div>
+          </div>
+          <div class="calc-item">
+            <div class="calc-item-label">Total</div>
+            <div class="calc-item-val accent" id="prevTotal">₹0.00</div>
+          </div>
+        </div>
+        <div class="fund-split-line" id="fundSplitLine"><i class="fas fa-pie-chart"></i> <span>Funding</span></div>
+      </div>
+      <div class="modal-foot-btns">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="handleSubmit(event)">
+          <i class="fas fa-save"></i> Save Entry
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1700,7 +1849,7 @@
 ============================================================ -->
 <script>
 // ── Config ──────────────────────────────────────────────────
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyB29qMnBmQeB1Q1-SDF1kiiMH-YNJlXANsM5HNnWXTniuTn3P_B1dt9NzSq1FBg4J6oQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsuunbsRPE4k0MNe0a3RwDKAnObj76z2m_U2wj4X9hh2-0h09hf5WxKoPDh50NL46Ssw/exec';
 
 // ── State ────────────────────────────────────────────────────
 let allRecords     = [];
@@ -1772,14 +1921,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Register PWA Service Worker
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
+    // updateViaCache:'none' → never detect updates from a stale HTTP-cached sw.js
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
       .then((reg) => {
         console.log('Service Worker registered');
         // Force an immediate check for a newer sw.js instead of waiting on
         // the browser's own (up to 24h) throttled update schedule.
         reg.update();
+        // Re-check whenever the user returns to the tab — PWAs stay open for days
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') reg.update();
+        });
       })
       .catch((err) => console.error('Service Worker registration failed:', err));
+
+    // When a new service worker takes control, reload so the page runs the
+    // fresh assets it activated with. Only when the page was previously
+    // controlled (a real update, not the first install), and deferred while
+    // the entry form is open so in-progress input is never lost.
+    const hadController  = !!navigator.serviceWorker.controller;
+    let swReloadPending  = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || swReloadPending) return;
+      swReloadPending = true;
+      reloadWhenFormClosed();
+    });
   }
 });
 
@@ -1801,7 +1967,7 @@ function showOfflineBanner() {
   if (!b) {
     b = document.createElement('div');
     b.id = 'offlineBanner';
-    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9990;background:#ef4444;color:#fff;text-align:center;padding:10px 16px;font-size:13.5px;font-weight:600;font-family:Inter,sans-serif';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9990;background:#ef4444;color:#fff;text-align:center;padding:10px 16px;font-size:13.5px;font-weight:600;font-family:\'Google Sans\',Manrope,sans-serif';
     b.innerHTML = '<i class="fas fa-wifi-slash" style="margin-right:8px"></i>No internet connection — changes will not be saved until you reconnect.';
     document.body.prepend(b);
   }
@@ -1935,18 +2101,22 @@ function calcInterest(p, r, d, type, fromVal, toVal) {
     const { months, days } = exactMonthsAndDays(fromVal, toVal);
     return (p * (r / 100) * months) + (p * (r / 100) * (days / 30));
   }
-  // Daily: treat r as amount per day
-  if (type === 'daily') {
-    return r * d;
-  }
   if (!d) return 0;
-  // Daily: principal × (rate% / 100) × number of days
-  // e.g. ₹2000 × 2% × 30 days = ₹1,200
+  // Daily (and fallback): principal × (rate% / 100) × number of days
+  // e.g. ₹20,000 × 2% × 30 days = ₹12,000
   return (p * (r / 100)) * d;
 }
 
-function calcRate(p, i, d, type) {
+function calcRate(p, i, d, type, fromVal, toVal) {
   if (!p || !i || !d) return 0;
+  // Monthly rates use the same exact months + (days/30) basis as calcInterest,
+  // so deriving a rate from an amount reproduces that amount exactly.
+  if (type === 'monthly' && fromVal && toVal) {
+    const { months, days } = exactMonthsAndDays(fromVal, toVal);
+    const basis = months + (days / 30);
+    if (!basis) return 0;
+    return (i * 100) / (p * basis);
+  }
   const div = RATE_DIV[type] || 30;
   return (i * div * 100) / (p * d);
 }
@@ -1957,48 +2127,111 @@ function daysBetween(f, t) {
 }
 
 // ── Funding Source Toggle Handlers ─────────────────────────────
+function getFundingSources() {
+  return {
+    self:   document.getElementById('fundSelf')?.checked ?? true,
+    app:    document.getElementById('fundApp')?.checked ?? false,
+    person: document.getElementById('fundPerson')?.checked ?? false
+  };
+}
+function isSelfOnly() { const s = getFundingSources(); return !s.app && !s.person; }
+
 function toggleFundingFields() {
-  const source = document.querySelector('input[name="fundingSource"]:checked')?.value || 'self';
+  const sources = getFundingSources();
   const appRow = document.getElementById('appInterestRow');
   const personRow = document.getElementById('personInterestRow');
+  const selfRow = document.getElementById('selfAmountRow');
   const prevProfitItem = document.getElementById('prevRealProfitItem');
   const prevProfitLabel = document.getElementById('prevRealProfitLabel');
   const prevProfitVal = document.getElementById('prevRealProfit');
-  
-  if (source === 'app') {
-    appRow.style.display = 'contents';
-    personRow.style.display = 'none';
+
+  // Visual: highlight the selected checkbox rows (CSS uses .is-checked, not :has())
+  document.querySelectorAll('.fund-source-opt').forEach(opt => {
+    const inp = opt.querySelector('input[type=checkbox]');
+    if (inp) opt.classList.toggle('is-checked', inp.checked);
+  });
+
+  // Self amount field shows only when Self is combined with another source.
+  selfRow.style.display   = (sources.self && (sources.app || sources.person)) ? 'block' : 'none';
+  appRow.style.display    = sources.app    ? 'block' : 'none';
+  personRow.style.display = sources.person ? 'block' : 'none';
+
+  if (sources.app || sources.person) {
     prevProfitItem.style.display = '';
-    prevProfitLabel.textContent = 'Net Profit';
-    prevProfitLabel.style.color = 'var(--purple)';
-    prevProfitVal.style.color = 'var(--purple)';
-    document.querySelector('.calc-preview .calc-row').classList.add('four-cols');
-    document.getElementById('personInterest').value = '';
-    document.getElementById('personLenderName').value = '';
-    document.getElementById('personAmountFunded').value = '';
-  } else if (source === 'person') {
-    appRow.style.display = 'none';
-    personRow.style.display = 'contents';
-    prevProfitItem.style.display = '';
-    prevProfitLabel.textContent = 'Net Profit';
-    prevProfitLabel.style.color = 'var(--indigo)';
-    prevProfitVal.style.color = 'var(--indigo)';
-    document.querySelector('.calc-preview .calc-row').classList.add('four-cols');
-    document.getElementById('appInterest').value = '';
-    document.getElementById('appAmountFunded').value = '';
+    prevProfitLabel.textContent  = 'Net Profit';
+    prevProfitLabel.style.color  = 'var(--purple)';
+    prevProfitVal.style.color    = 'var(--purple)';
   } else {
-    appRow.style.display = 'none';
-    personRow.style.display = 'none';
     prevProfitItem.style.display = 'none';
-    document.querySelector('.calc-preview .calc-row').classList.remove('four-cols');
-    document.getElementById('appInterest').value = '';
-    document.getElementById('appAmountFunded').value = '';
-    document.getElementById('personInterest').value = '';
-    document.getElementById('personLenderName').value = '';
-    document.getElementById('personAmountFunded').value = '';
   }
   updatePersonFundLabels();
+  updateFundSplit();
   autoCalc();
+}
+
+// Central funding-split rule. Returns an error message, or '' when valid.
+// Tally: Self + App + Person must equal the Principal exactly.
+// Self unchecked → only App + Person, which must equal the Principal.
+function fundingSplitError() {
+  const sources   = getFundingSources();
+  const principal = parseFloat(document.getElementById('principal').value) || 0;
+  const appAmt    = sources.app    ? (parseFloat(document.getElementById('appAmountFunded').value)    || 0) : 0;
+  const personAmt = sources.person ? (parseFloat(document.getElementById('personAmountFunded').value) || 0) : 0;
+  const selfAmt   = sources.self   ? (parseFloat(document.getElementById('selfAmountFunded').value)   || 0) : 0;
+  const sum       = selfAmt + appAmt + personAmt;
+  const EPS       = 0.01;
+
+  if (appAmt + personAmt > principal + EPS && !sources.self) {
+    return `App + Person (₹${fmtNum(appAmt + personAmt)}) exceeds the principal by ₹${fmtNum(appAmt + personAmt - principal)}`;
+  }
+  if (sum > principal + EPS) {
+    return `Funding exceeds the principal by ₹${fmtNum(sum - principal)}`;
+  }
+  if (sum < principal - EPS) {
+    return `Short by ₹${fmtNum(principal - sum)} — Self + App + Person must add up to the principal (₹${fmtNum(principal)})`;
+  }
+  return '';
+}
+
+// Live readout of the funding split + self amount placeholder suggestion.
+function updateFundSplit() {
+  const line = document.getElementById('fundSplitLine');
+  if (!line) return;
+  const sources = getFundingSources();
+  if (isSelfOnly()) { line.style.display = 'none'; return; }
+
+  const principal = parseFloat(document.getElementById('principal').value) || 0;
+  const appAmt    = sources.app    ? (parseFloat(document.getElementById('appAmountFunded').value)    || 0) : 0;
+  const personAmt = sources.person ? (parseFloat(document.getElementById('personAmountFunded').value) || 0) : 0;
+  const selfAmt   = sources.self   ? (parseFloat(document.getElementById('selfAmountFunded').value)   || 0) : 0;
+  const err       = fundingSplitError();
+
+  // Suggest the leftover as the self placeholder when Self + another source.
+  const selfVal = document.getElementById('selfAmountFunded');
+  if (sources.self && (sources.app || sources.person)) {
+    const leftover = Math.max(0, principal - appAmt - personAmt);
+    selfVal.placeholder = leftover > 0 ? leftover.toFixed(2) : '0.00';
+    document.getElementById('selfAmountHint').textContent =
+      `Remaining to reach ₹${fmtNum(principal)} principal`;
+  } else {
+    selfVal.placeholder = '0.00';
+    document.getElementById('selfAmountHint').textContent = 'Your own contribution to this loan';
+  }
+
+  let chips = '';
+  if (sources.self)   chips += `<span class="fs-chip fs-self">Self ₹${fmtNum(selfAmt)}</span>`;
+  if (sources.app)    chips += `<span class="fs-eq">+</span><span class="fs-chip fs-app">App ₹${fmtNum(appAmt)}</span>`;
+  if (sources.person) chips += `<span class="fs-eq">+</span><span class="fs-chip fs-person">Person ₹${fmtNum(personAmt)}</span>`;
+
+  line.style.display = '';
+  line.classList.remove('fs-ok', 'fs-warn');
+  if (err) {
+    line.classList.add('fs-warn');
+    line.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${err}`;
+  } else {
+    line.classList.add('fs-ok');
+    line.innerHTML = `<i class="fas fa-check-circle"></i> Balanced ${chips}<span class="fs-eq">=</span><span class="fs-chip">₹${fmtNum(principal)}</span>`;
+  }
 }
 
 // ── Person-Funded dynamic labels ───────────────────────────────
@@ -2011,12 +2244,12 @@ function updatePersonFundLabels() {
   if (name) {
     amtLabel.innerHTML = `Amount You Brought From <span style="color:var(--indigo)">${esc(name)}</span>`;
     amtHint.textContent = `How much you borrowed from ${name}`;
-    intLabel.innerHTML  = `Interest Owed To <span style="color:var(--indigo)">${esc(name)}</span> <span class="req">*</span>`;
+    intLabel.innerHTML  = `Interest Owed To <span style="color:var(--indigo)">${esc(name)}</span>`;
     intHint.textContent = `Interest you owe ${name} on this loan`;
   } else {
     amtLabel.textContent = 'Amount Funded';
     amtHint.textContent  = 'Amount you borrowed for this loan';
-    intLabel.innerHTML   = 'Person Interest Amount <span class="req">*</span>';
+    intLabel.innerHTML   = 'Person Interest Amount';
     intHint.textContent  = 'Interest paid to the lender person';
   }
 }
@@ -2028,9 +2261,15 @@ function getRateType() {
 function onRateTypeChange() {
   const t = getRateType();
   const isBoth = t === 'both';
-  document.getElementById('singleRateRow').style.display        = isBoth ? 'none' : '';
-  document.getElementById('singleRatePlaceholder').style.display = isBoth ? 'none' : '';
-  document.getElementById('dualRateRow').classList.toggle('show', isBoth);
+  const singleRow = document.getElementById('singleRateRow');
+  const dualRow   = document.getElementById('dualRateRow');
+  const amtField  = document.getElementById('interestAmountField');
+  singleRow.style.display = isBoth ? 'none' : '';
+  dualRow.classList.toggle('show', isBoth);
+  // Keep rows balanced: amount ↔ rate side-by-side in single mode,
+  // monthly | daily | amount as a triple in "both" mode.
+  if (isBoth) dualRow.appendChild(amtField);
+  else singleRow.before(amtField);
 
   const sufEl   = document.getElementById('singleRateSuf');
   const lblEl   = document.getElementById('singleRateLabel');
@@ -2101,39 +2340,47 @@ function autoCalc() {
   } else {
     const rateInput = document.getElementById('interestRate');
     const rateVal   = parseFloat(rateInput.value);
+    const hasRate   = rateInput.value.trim() !== '' && !isNaN(rateVal) && rateVal >= 0;
 
     if (lastEditField === 'interest' && !isNaN(intVal) && intVal >= 0) {
+      // Amount is the source of truth → derive the rate from it.
       interest = intVal;
       if (principal > 0 && days > 0) {
-        rate = calcRate(principal, interest, days, rateType);
+        rate = calcRate(principal, interest, days, rateType, fromVal, toVal);
         if (document.activeElement !== rateInput)
           rateInput.value = rate.toFixed(4);
       }
-    } else if (!isNaN(rateVal) && rateVal >= 0) {
+    } else if (lastEditField !== 'interest' && hasRate) {
+      // Rate is the source of truth → derive the amount from it.
       rate = rateVal;
       if (principal > 0 && days > 0) {
         interest = calcInterest(principal, rate, days, rateType, fromVal, toVal);
         if (document.activeElement !== intInput)
           intInput.value = interest.toFixed(2);
       }
+    } else {
+      // Amount (or rate) was cleared — drop the stale derived value so the
+      // form never shows a leftover number that no longer means anything.
+      interest = 0;
+      rate = 0;
+      if (document.activeElement !== rateInput) rateInput.value = '';
+      if (document.activeElement !== intInput)  intInput.value  = '';
     }
     document.getElementById('prevRate').textContent = rate > 0 ? rate.toFixed(4) + '%' : '0.00%';
   }
 
-  const fundingSource = document.querySelector('input[name="fundingSource"]:checked')?.value || 'self';
-  let realProfit = interest;
-  if (fundingSource === 'app') {
-    const appInterest = parseFloat(document.getElementById('appInterest').value) || 0;
-    realProfit = interest - appInterest;
-  } else if (fundingSource === 'person') {
-    const personInterest = parseFloat(document.getElementById('personInterest').value) || 0;
-    realProfit = interest - personInterest;
-  }
+  const sources = getFundingSources();
+  const appInterest = sources.app
+    ? (parseFloat(document.getElementById('appInterest').value) || 0) : 0;
+  const personInterest = sources.person
+    ? (parseFloat(document.getElementById('personInterest').value) || 0) : 0;
+  let realProfit = interest - appInterest - personInterest;
 
   const total = principal + interest;
   document.getElementById('prevInterest').textContent = fmtCur(interest);
   document.getElementById('prevTotal').textContent    = fmtCur(total);
   document.getElementById('prevRealProfit').textContent = fmtCur(realProfit);
+  updateFundSplit();
 }
 
 // ── Modal ─────────────────────────────────────────────────────
@@ -2161,19 +2408,29 @@ function openModal(rec = null) {
 
     const isApp = rec.isAppMoney === 'true' || rec.isAppMoney === true;
     const isPerson = rec.isPersonMoney === 'true' || rec.isPersonMoney === true;
-    let source = 'self';
-    if (isApp) source = 'app';
-    else if (isPerson) source = 'person';
-    const fundRadio = document.querySelector(`input[name="fundingSource"][value="${source}"]`);
-    if (fundRadio) fundRadio.checked = true;
-    
-    document.getElementById('appInterest').value = isApp ? (rec.appInterest || '') : '';
-    document.getElementById('appAmountFunded').value = isApp ? (rec.appAmountFunded || '') : '';
-    document.getElementById('personInterest').value = isPerson ? (rec.personInterest || '') : '';
-    document.getElementById('personLenderName').value = isPerson ? (rec.personLenderName || '') : '';
-    document.getElementById('personAmountFunded').value = isPerson ? (rec.personAmountFunded || '') : '';
-    toggleFundingFields();
+    const principalR = parseFloat(rec.principal) || 0;
+    const appAmtR    = parseFloat(rec.appAmountFunded) || 0;
+    const personAmtR = parseFloat(rec.personAmountFunded) || 0;
+    const storedSelf = parseFloat(rec.selfAmountFunded) || 0;
+    // New records store selfAmountFunded; legacy records only have app/person
+    // amounts, so Self = Principal − App − Person (the remainder).
+    const computedSelf = Math.max(0, principalR - appAmtR - personAmtR);
+    const selfAmtR     = storedSelf > 0 ? storedSelf : computedSelf;
+    const selfChecked  = (isApp || isPerson) ? selfAmtR > 0.005 : true;
 
+    document.getElementById('fundSelf').checked   = selfChecked;
+    document.getElementById('fundApp').checked    = isApp;
+    document.getElementById('fundPerson').checked = isPerson;
+    document.getElementById('selfAmountFunded').value = selfChecked ? selfAmtR.toFixed(2) : '';
+
+    document.getElementById('appInterest').value = rec.appInterest || '';
+    document.getElementById('appAmountFunded').value = rec.appAmountFunded || '';
+    document.getElementById('personInterest').value = rec.personInterest || '';
+    document.getElementById('personLenderName').value = rec.personLenderName || '';
+    document.getElementById('personAmountFunded').value = rec.personAmountFunded || '';
+
+    // Restore rate fields BEFORE any call that triggers autoCalc, otherwise the
+    // "cleared" branch in autoCalc wipes the restored interest amount.
     if (rt === 'both') {
       document.getElementById('rateMonthly').value = rec.rateMonthly || '';
       document.getElementById('rateDaily').value   = rec.rateDaily   || '';
@@ -2181,12 +2438,15 @@ function openModal(rec = null) {
       document.getElementById('interestRate').value = rec.interestRate || '';
     }
     lastEditField = rec.interestAmount ? 'interest' : 'rate';
-    autoCalc();
+
+    toggleFundingFields();
   } else {
-    // Default to Per Month
+    // New entry defaults: nothing selected (Self unchecked by default)
     document.getElementById('rtMonth').checked = true;
-    const fundRadio = document.querySelector(`input[name="fundingSource"][value="self"]`);
-    if (fundRadio) fundRadio.checked = true;
+    document.getElementById('fundSelf').checked   = false;
+    document.getElementById('fundApp').checked    = false;
+    document.getElementById('fundPerson').checked = false;
+    document.getElementById('selfAmountFunded').value = '';
     toggleFundingFields();
     onRateTypeChange();
     setDefaultDates();
@@ -2199,6 +2459,14 @@ function openModal(rec = null) {
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('show');
   editingId = null;
+}
+
+// Apply an updated service worker by reloading, waiting until the entry
+// form is closed so the user never loses in-progress input.
+function reloadWhenFormClosed() {
+  const formOpen = document.getElementById('modalOverlay')?.classList.contains('show');
+  if (formOpen) { setTimeout(reloadWhenFormClosed, 1200); return; }
+  window.location.reload();
 }
 
 function handleOverlayClick(e) {
@@ -2239,18 +2507,27 @@ async function handleSubmit(e) {
     toast('To Date must be after From Date.', 'error'); return;
   }
 
-  const fundingSource = document.querySelector('input[name="fundingSource"]:checked')?.value || 'self';
-  const isAppMoney = fundingSource === 'app';
-  const isPersonMoney = fundingSource === 'person';
+  const sources = getFundingSources();
+  const isAppMoney = sources.app;
+  const isPersonMoney = sources.person;
   const appInterest = isAppMoney ? (parseFloat(document.getElementById('appInterest').value) || 0) : 0;
   const appAmountFunded = isAppMoney ? (parseFloat(document.getElementById('appAmountFunded').value) || 0) : 0;
   const personInterest = isPersonMoney ? (parseFloat(document.getElementById('personInterest').value) || 0) : 0;
   const personLenderName = isPersonMoney ? document.getElementById('personLenderName').value.trim() : '';
   const personAmountFunded = isPersonMoney ? (parseFloat(document.getElementById('personAmountFunded').value) || 0) : 0;
+  const selfAmountFunded   = sources.self && (sources.app || sources.person)
+    ? (parseFloat(document.getElementById('selfAmountFunded').value) || 0) : 0;
   const description = document.getElementById('description').value.trim();
 
   if (isPersonMoney && !personLenderName) {
     toast("Please enter the lender's name.", 'error'); return;
+  }
+
+  // Funded amounts must tally with the principal.
+  const splitErr = fundingSplitError();
+  if (splitErr) {
+    toast(splitErr, 'error');
+    return;
   }
 
   const payload = {
@@ -2275,6 +2552,7 @@ async function handleSubmit(e) {
     personInterest: personInterest.toFixed(2),
     personLenderName,
     personAmountFunded: personAmountFunded.toFixed(2),
+    selfAmountFunded:   selfAmountFunded.toFixed(2),
     status:         editingId ? (allRecords.find(r => r.id === editingId)?.status || 'Unpaid') : 'Unpaid'
   };
 
@@ -2342,7 +2620,17 @@ function viewRecord(id) {
   document.getElementById('viewName').textContent    = rec.senderName || 'Entry Details';
 
   const paid = rec.status === 'Paid';
+  const isApp = rec.isAppMoney === 'true' || rec.isAppMoney === true;
+  const isPerson = rec.isPersonMoney === 'true' || rec.isPersonMoney === true;
   const metaEl = document.getElementById('viewMetaRow');
+  let fundingChips = '';
+  const _appAmt  = parseFloat(rec.appAmountFunded) || 0;
+  const _perAmt  = parseFloat(rec.personAmountFunded) || 0;
+  const _selfSt  = parseFloat(rec.selfAmountFunded) || 0;
+  const _selfAmt = _selfSt > 0 ? _selfSt : Math.max(0, (parseFloat(rec.principal)||0) - _appAmt - _perAmt);
+  if (_selfAmt > 0) fundingChips += `<span class="view-meta-chip app-money-tag" style="margin-left:0;color:var(--primary);background:var(--primary-50)" title="Self funded ₹${fmtNum(_selfAmt)}">Self ₹${fmtNum(_selfAmt)}</span>`;
+  if (isApp) fundingChips += `<span class="view-meta-chip app-money-tag" style="margin-left:6px" title="App funded ₹${fmtNum(rec.appAmountFunded)}">App</span>`;
+  if (isPerson) fundingChips += `<span class="view-meta-chip person-money-tag" style="margin-left:6px" title="${esc(rec.personLenderName || 'Person')} funded ₹${fmtNum(rec.personAmountFunded)}">Person</span>`;
   metaEl.innerHTML = `
     <div class="view-meta-chip">
       <div class="view-meta-icon blue"><i class="fas fa-wallet"></i></div>
@@ -2365,6 +2653,13 @@ function viewRecord(id) {
         <span class="view-meta-val" style="color:${paid ? 'var(--success)' : 'var(--danger)'}">${esc(rec.status || 'Unpaid')}</span>
       </div>
     </div>
+    ${fundingChips ? `<div class="view-meta-chip" style="grid-column:1/-1">
+      <div class="view-meta-icon blue"><i class="fas fa-pie-chart"></i></div>
+      <div class="view-meta-text">
+        <span class="view-meta-label">Funding Sources</span>
+        <span class="view-meta-val">${fundingChips}</span>
+      </div>
+    </div>` : ''}
   `;
 
   const descEl = document.getElementById('viewDescContent');
@@ -2436,21 +2731,21 @@ function renderTable() {
     const realProfit = liveInterest - appInt - personInt;
 
     let trClass = '';
-    if (isApp) trClass = 'row-app-money';
+    if (isApp && isPerson) trClass = 'row-app-money row-person-money';
+    else if (isApp) trClass = 'row-app-money';
     else if (isPerson) trClass = 'row-person-money';
 
     let nameBadge = '';
     if (isApp) {
-      nameBadge = `<span class="app-money-tag" title="Funded via App's Money"><i class="fas fa-mobile-alt"></i> App</span>`;
-    } else if (isPerson) {
-      nameBadge = `<span class="person-money-tag" title="Funded via Person's Money"><i class="fas fa-user"></i> Person</span>`;
+      nameBadge += `<span class="app-money-tag" title="Funded via App's Money"><i class="fas fa-mobile-alt"></i> App</span>`;
+    }
+    if (isPerson) {
+      nameBadge += `<span class="person-money-tag" title="Funded via Person's Money"><i class="fas fa-user"></i> Person</span>`;
     }
 
     let profitSub = '';
-    if (isApp) {
+    if (isApp || isPerson) {
       profitSub = `<div class="real-profit-sub" title="Net Profit">Net: ₹${fmtNum(realProfit)}</div>`;
-    } else if (isPerson) {
-      profitSub = `<div class="real-profit-sub" style="color:var(--indigo)" title="Net Profit">Net: ₹${fmtNum(realProfit)}</div>`;
     }
 
     return `
@@ -2523,21 +2818,21 @@ function renderTable() {
     const realProfit = liveInterest - appInt - personInt;
 
     let cardClass = 'mobile-card';
-    if (isApp) cardClass = 'mobile-card card-app-money';
-    else if (isPerson) cardClass = 'mobile-card card-person-money';
+    if (isApp && isPerson) cardClass += ' card-app-money card-person-money';
+    else if (isApp) cardClass += ' card-app-money';
+    else if (isPerson) cardClass += ' card-person-money';
 
     let nameBadge = '';
     if (isApp) {
-      nameBadge = `<span class="app-money-tag" title="Funded via App's Money"><i class="fas fa-mobile-alt"></i> App</span>`;
-    } else if (isPerson) {
-      nameBadge = `<span class="person-money-tag" title="Funded via Person's Money"><i class="fas fa-user"></i> Person</span>`;
+      nameBadge += `<span class="app-money-tag" title="Funded via App's Money"><i class="fas fa-mobile-alt"></i> App</span>`;
+    }
+    if (isPerson) {
+      nameBadge += `<span class="person-money-tag" title="Funded via Person's Money"><i class="fas fa-user"></i> Person</span>`;
     }
 
     let profitSub = '';
-    if (isApp) {
+    if (isApp || isPerson) {
       profitSub = `<div class="real-profit-sub" style="margin-top:1px" title="Net Profit">Net: ₹${fmtNum(realProfit)}</div>`;
-    } else if (isPerson) {
-      profitSub = `<div class="real-profit-sub" style="margin-top:1px; color:var(--indigo)" title="Net Profit">Net: ₹${fmtNum(realProfit)}</div>`;
     }
 
     return `
@@ -2699,11 +2994,12 @@ function animNum(id, target, currency) {
 // ── Export CSV ────────────────────────────────────────────────
 function exportCSV() {
   if (!allRecords.length) { toast('No records to export.', 'warning'); return; }
-  const hdr  = ['ID','Sender Name','Principal','Interest Rate %','Interest Amount','From Date','To Date','Days','Total Amount','Status','Is App Money','App Interest','App Amount Funded','Is Person Money','Person Interest','Lender Name','Amount Funded','Description'];
+  const hdr  = ['ID','Sender Name','Principal','Interest Rate %','Interest Amount','From Date','To Date','Days','Total Amount','Status','Is App Money','App Interest','App Amount Funded','Self Amount Funded','Is Person Money','Person Interest','Lender Name','Amount Funded','Description'];
   const rows = allRecords.map(r => [
     r.id, r.senderName, r.principal, r.interestRate,
     r.interestAmount, r.fromDate, r.toDate, r.numDays, r.totalAmount, r.status,
     r.isAppMoney || 'false', r.appInterest || '0.00', r.appAmountFunded || '0.00',
+    r.selfAmountFunded || '0.00',
     r.isPersonMoney || 'false', r.personInterest || '0.00',
     r.personLenderName || '', r.personAmountFunded || '0.00',
     r.description || ''
