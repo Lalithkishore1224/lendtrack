@@ -1577,15 +1577,26 @@
             </div>
           </div>
 
-          <!-- App Interest Row -->
-          <div class="fg" id="appInterestRow" style="display: none;">
-            <label class="form-label">App Interest Amount <span class="req">*</span></label>
-            <div class="input-wrap has-pre">
-              <span class="input-pre">₹</span>
-              <input type="number" class="form-input" id="appInterest"
-                placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+          <!-- App Funded Fields -->
+          <div id="appInterestRow" style="display: none;">
+            <div class="fg">
+              <label class="form-label">Amount Got From App</label>
+              <div class="input-wrap has-pre">
+                <span class="input-pre">₹</span>
+                <input type="number" class="form-input" id="appAmountFunded"
+                  placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+              </div>
+              <span class="form-hint">Amount you borrowed from the app</span>
             </div>
-            <span class="form-hint">Interest charged by the credit app</span>
+            <div class="fg">
+              <label class="form-label">App Interest Amount <span class="req">*</span></label>
+              <div class="input-wrap has-pre">
+                <span class="input-pre">₹</span>
+                <input type="number" class="form-input" id="appInterest"
+                  placeholder="0.00" step="0.01" min="0" oninput="autoCalc()" />
+              </div>
+              <span class="form-hint">Interest charged by the credit app</span>
+            </div>
           </div>
 
           <!-- Person Funded Fields -->
@@ -1955,7 +1966,7 @@ function toggleFundingFields() {
   const prevProfitVal = document.getElementById('prevRealProfit');
   
   if (source === 'app') {
-    appRow.style.display = '';
+    appRow.style.display = 'contents';
     personRow.style.display = 'none';
     prevProfitItem.style.display = '';
     prevProfitLabel.textContent = 'Net Profit';
@@ -1974,12 +1985,14 @@ function toggleFundingFields() {
     prevProfitVal.style.color = 'var(--indigo)';
     document.querySelector('.calc-preview .calc-row').classList.add('four-cols');
     document.getElementById('appInterest').value = '';
+    document.getElementById('appAmountFunded').value = '';
   } else {
     appRow.style.display = 'none';
     personRow.style.display = 'none';
     prevProfitItem.style.display = 'none';
     document.querySelector('.calc-preview .calc-row').classList.remove('four-cols');
     document.getElementById('appInterest').value = '';
+    document.getElementById('appAmountFunded').value = '';
     document.getElementById('personInterest').value = '';
     document.getElementById('personLenderName').value = '';
     document.getElementById('personAmountFunded').value = '';
@@ -2155,6 +2168,7 @@ function openModal(rec = null) {
     if (fundRadio) fundRadio.checked = true;
     
     document.getElementById('appInterest').value = isApp ? (rec.appInterest || '') : '';
+    document.getElementById('appAmountFunded').value = isApp ? (rec.appAmountFunded || '') : '';
     document.getElementById('personInterest').value = isPerson ? (rec.personInterest || '') : '';
     document.getElementById('personLenderName').value = isPerson ? (rec.personLenderName || '') : '';
     document.getElementById('personAmountFunded').value = isPerson ? (rec.personAmountFunded || '') : '';
@@ -2229,6 +2243,7 @@ async function handleSubmit(e) {
   const isAppMoney = fundingSource === 'app';
   const isPersonMoney = fundingSource === 'person';
   const appInterest = isAppMoney ? (parseFloat(document.getElementById('appInterest').value) || 0) : 0;
+  const appAmountFunded = isAppMoney ? (parseFloat(document.getElementById('appAmountFunded').value) || 0) : 0;
   const personInterest = isPersonMoney ? (parseFloat(document.getElementById('personInterest').value) || 0) : 0;
   const personLenderName = isPersonMoney ? document.getElementById('personLenderName').value.trim() : '';
   const personAmountFunded = isPersonMoney ? (parseFloat(document.getElementById('personAmountFunded').value) || 0) : 0;
@@ -2255,6 +2270,7 @@ async function handleSubmit(e) {
     totalAmount:    totalAmount.toFixed(2),
     isAppMoney:     isAppMoney ? 'true' : 'false',
     appInterest:    appInterest.toFixed(2),
+    appAmountFunded: appAmountFunded.toFixed(2),
     isPersonMoney:  isPersonMoney ? 'true' : 'false',
     personInterest: personInterest.toFixed(2),
     personLenderName,
@@ -2683,11 +2699,11 @@ function animNum(id, target, currency) {
 // ── Export CSV ────────────────────────────────────────────────
 function exportCSV() {
   if (!allRecords.length) { toast('No records to export.', 'warning'); return; }
-  const hdr  = ['ID','Sender Name','Principal','Interest Rate %','Interest Amount','From Date','To Date','Days','Total Amount','Status','Is App Money','App Interest','Is Person Money','Person Interest','Lender Name','Amount Funded','Description'];
+  const hdr  = ['ID','Sender Name','Principal','Interest Rate %','Interest Amount','From Date','To Date','Days','Total Amount','Status','Is App Money','App Interest','App Amount Funded','Is Person Money','Person Interest','Lender Name','Amount Funded','Description'];
   const rows = allRecords.map(r => [
     r.id, r.senderName, r.principal, r.interestRate,
     r.interestAmount, r.fromDate, r.toDate, r.numDays, r.totalAmount, r.status,
-    r.isAppMoney || 'false', r.appInterest || '0.00',
+    r.isAppMoney || 'false', r.appInterest || '0.00', r.appAmountFunded || '0.00',
     r.isPersonMoney || 'false', r.personInterest || '0.00',
     r.personLenderName || '', r.personAmountFunded || '0.00',
     r.description || ''

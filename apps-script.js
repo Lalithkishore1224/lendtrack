@@ -23,6 +23,7 @@
  * D  Interest Rate E  Interest Amt   F  From Date
  * G  To Date       H  Days           I  Total Amount   J  Status
  * ...              R  Description    S  Lender Name    T  Amount Funded
+ * U  App Amount Funded
  */
 
 // ── Configuration ─────────────────────────────────────────────
@@ -36,9 +37,10 @@ const COL = {
   RATE_TYPE: 10, RATE_MONTHLY: 11, RATE_DAILY: 12,
   IS_APP_MONEY: 13, APP_INTEREST: 14,
   IS_PERSON_MONEY: 15, PERSON_INTEREST: 16,
-  DESCRIPTION: 17, PERSON_LENDER_NAME: 18, PERSON_AMOUNT_FUNDED: 19
+  DESCRIPTION: 17, PERSON_LENDER_NAME: 18, PERSON_AMOUNT_FUNDED: 19,
+  APP_AMOUNT_FUNDED: 20
 };
-const TOTAL_COLS = 20;
+const TOTAL_COLS = 21;
 
 // ── Sheet helper ──────────────────────────────────────────────
 function getSheet() {
@@ -54,7 +56,7 @@ function getSheet() {
       'Rate Type', 'Monthly Rate (%)', 'Daily Rate (%)',
       'Is App Money', 'App Interest (₹)',
       'Is Person Money', 'Person Interest (₹)', 'Description',
-      'Lender Name', 'Amount Funded (₹)'
+      'Lender Name', 'Amount Funded (₹)', 'App Amount Funded (₹)'
     ];
     sheet.appendRow(headers);
 
@@ -86,6 +88,7 @@ function getSheet() {
     sheet.setColumnWidth(18, 220); // Description
     sheet.setColumnWidth(19, 150); // Lender Name
     sheet.setColumnWidth(20, 140); // Amount Funded
+    sheet.setColumnWidth(21, 150); // App Amount Funded
   }
 
   return sheet;
@@ -168,6 +171,7 @@ function getAllRecords() {
       rateDaily:      String(row[COL.RATE_DAILY]   || '0'),
       isAppMoney:     String(row[COL.IS_APP_MONEY]  || 'false'),
       appInterest:    String(row[COL.APP_INTEREST]  || '0'),
+      appAmountFunded: String(row[COL.APP_AMOUNT_FUNDED] || '0'),
       isPersonMoney:  String(row[COL.IS_PERSON_MONEY] || 'false'),
       personInterest: String(row[COL.PERSON_INTEREST] || '0'),
       description:    String(row[COL.DESCRIPTION]    || ''),
@@ -261,7 +265,8 @@ function buildRow(data) {
     parseFloat(data.personInterest) || 0,
     data.description || '',
     data.personLenderName || '',
-    parseFloat(data.personAmountFunded) || 0
+    parseFloat(data.personAmountFunded) || 0,
+    parseFloat(data.appAmountFunded) || 0
   ];
 }
 
