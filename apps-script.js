@@ -178,7 +178,8 @@ function getAllRecords() {
       personInterest: String(row[COL.PERSON_INTEREST] || '0'),
       description:    String(row[COL.DESCRIPTION]    || ''),
       personLenderName:   String(row[COL.PERSON_LENDER_NAME]   || ''),
-      personAmountFunded: String(row[COL.PERSON_AMOUNT_FUNDED] || '0')
+      personAmountFunded: String(row[COL.PERSON_AMOUNT_FUNDED] || '0'),
+      selfAmountFunded:   String(row[COL.SELF_AMOUNT_FUNDED]   || '0')
     }));
 
   return { records };
@@ -268,7 +269,8 @@ function buildRow(data) {
     data.description || '',
     data.personLenderName || '',
     parseFloat(data.personAmountFunded) || 0,
-    parseFloat(data.appAmountFunded) || 0
+    parseFloat(data.appAmountFunded) || 0,
+    parseFloat(data.selfAmountFunded) || 0
   ];
 }
 
