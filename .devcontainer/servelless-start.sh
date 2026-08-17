@@ -25,7 +25,7 @@ report() {
   curl -fsS -X PUT -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/status-$csname.json" -d "$body" >/dev/null 2>&1 || true
 }
 
-app_up() { curl -fsS -m 5 "http://127.0.0.1:$PORT/" >/dev/null 2>&1; }
+app_up() { curl -s -m 5 -o /dev/null "http://127.0.0.1:$PORT/"; }
 
 # Try a candidate command; succeeds as soon as the port responds. Bails out
 # early if the process exits without ever listening.
@@ -107,7 +107,11 @@ publish_tunnel() {
   fi
   for attempt in 1 2; do
     rm -f /tmp/servelless-tunnel.log
-    nohup "$CF" tunnel --url "http://127.0.0.1:$PORT" --no-autoupdate --logfile /tmp/servelless-tunnel.log >/dev/null 2>&1 &
+    if command -v setsid >/dev/null 2>&1; then
+      setsid "$CF" tunnel --url "http://127.0.0.1:$PORT" --no-autoupdate --logfile /tmp/servelless-tunnel.log >/dev/null 2>&1 &
+    else
+      nohup "$CF" tunnel --url "http://127.0.0.1:$PORT" --no-autoupdate --logfile /tmp/servelless-tunnel.log >/dev/null 2>&1 &
+    fi
     local url=""
     for i in $(seq 1 45); do
       url=$(grep -oE 'https://[a-z0-9-]+[.]trycloudflare[.]com' /tmp/servelless-tunnel.log 2>/dev/null | tail -1)
@@ -152,3 +156,18 @@ publish_tunnel() {
   return 1
 }
 publish_tunnel
+
+# Keep this script alive so the app and tunnel processes started above are
+# never reaped when the postCreateCommand session ends. Every cycle: ensure the
+# app is still up, and re-publish the tunnel if cloudflared has died.
+while true; do
+  if ! app_up; then
+    start_app >/dev/null 2>&1 || true
+    sleep 15
+    continue
+  fi
+  if ! pgrep -f "cloudflared.*tunnel" >/dev/null 2>&1; then
+    publish_tunnel >/dev/null 2>&1 || true
+  fi
+  sleep 25
+done
