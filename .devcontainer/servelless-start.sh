@@ -69,4 +69,47 @@ SERVEEOF
   return 1
 }
 
-start_app
+if ! start_app; then
+  echo "servelless: app failed to start"
+  exit 0
+fi
+
+# Publish a real public Cloudflare tunnel (same mechanism as Cloud Shell) so
+# the app URL works for anyone with no GitHub auth. The URL is written back to
+# the repo under .servelless/ where verification reads it via the GitHub API.
+publish_tunnel() {
+  local CF="$HOME/.servelless/cloudflared"
+  mkdir -p "$HOME/.servelless"
+  if [ ! -x "$CF" ]; then
+    curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o "$CF" || return 1
+    chmod +x "$CF"
+  fi
+  rm -f /tmp/servelless-tunnel.log
+  nohup "$CF" tunnel --url "http://127.0.0.1:$PORT" --no-autoupdate --logfile /tmp/servelless-tunnel.log >/dev/null 2>&1 &
+  local url=""
+  for i in $(seq 1 60); do
+    url=$(grep -oE 'https://[a-z0-9-]+[.]trycloudflare[.]com' /tmp/servelless-tunnel.log 2>/dev/null | tail -1)
+    [ -n "$url" ] && break
+    sleep 2
+  done
+  [ -z "$url" ] && return 1
+  local repo="${GITHUB_REPOSITORY:-}"
+  local csname="${CODESPACE_NAME:-}"
+  local token="${GH_TOKEN:-}"
+  if [ -z "$repo" ] || [ -z "$csname" ] || [ -z "$token" ]; then
+    echo "servelless: tunnel=$url (no repo credentials to publish)"
+    return 0
+  fi
+  local payload
+  payload=$(printf '{"url":"%s","port":%s,"updated":"%s"}' "$url" "$PORT" "$(date -u +%FT%TZ)")
+  local sha=""
+  local getres
+  getres=$(curl -fsS -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/tunnel-$csname.json" 2>/dev/null || true)
+  sha=$(printf '%s' "$getres" | grep -o '"sha":"[^"]*"' | head -1 | sed 's/"sha":"//;s/"//')
+  local enc
+  enc=$(printf '%s' "$payload" | base64 -w0)
+  local body
+  body=$(printf '{"message":"chore: update servelless tunnel","content":"%s","branch":"main"%s}' "$enc" "${sha:+, "sha": "$sha"}")
+  curl -fsS -X PUT -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/tunnel-$csname.json" -d "$body" >/dev/null 2>&1 && echo "servelless: published $url"
+}
+publish_tunnel
