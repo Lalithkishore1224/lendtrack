@@ -3,6 +3,27 @@ set -u
 export PORT=3000
 START_CMD='static site (serve index.html)'
 LOG=/tmp/servelless-app.log
+CF="$HOME/.servelless/cloudflared"
+
+repo="${GITHUB_REPOSITORY:-}"
+csname="${CODESPACE_NAME:-}"
+token="${GH_TOKEN:-}"
+
+# Write a status file back to the repo (.servelless/status-<cs>.json) so
+# verification can report exactly what happened — even on silent failures.
+report() {
+  [ -n "$repo" ] || return 0
+  [ -n "$csname" ] || return 0
+  [ -n "$token" ] || return 0
+  local ok="$1" msg="$2" url="$3"
+  local payload enc sha getres body
+  payload=$(printf '{"ok":%s,"message":"%s","url":"%s","port":%s,"updated":"%s"}'     "$ok" "$msg" "$url" "$PORT" "$(date -u +%FT%TZ)")
+  enc=$(printf '%s' "$payload" | base64 -w0)
+  getres=$(curl -fsS -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/status-$csname.json" 2>/dev/null || true)
+  sha=$(printf '%s' "$getres" | grep -o '"sha":"[^"]*"' | head -1 | sed 's/"sha":"//;s/"//')
+  body=$(printf '{"message":"servelless status","content":"%s","branch":"main"%s}' "$enc" "${sha:+, "sha": "$sha"}")
+  curl -fsS -X PUT -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/status-$csname.json" -d "$body" >/dev/null 2>&1 || true
+}
 
 app_up() { curl -fsS -m 5 "http://127.0.0.1:$PORT/" >/dev/null 2>&1; }
 
@@ -70,6 +91,7 @@ SERVEEOF
 }
 
 if ! start_app; then
+  report false "app failed to start (see servelless-app.log)" ""
   echo "servelless: app failed to start"
   exit 0
 fi
@@ -78,38 +100,38 @@ fi
 # the app URL works for anyone with no GitHub auth. The URL is written back to
 # the repo under .servelless/ where verification reads it via the GitHub API.
 publish_tunnel() {
-  local CF="$HOME/.servelless/cloudflared"
   mkdir -p "$HOME/.servelless"
   if [ ! -x "$CF" ]; then
-    curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o "$CF" || return 1
+    curl -fsSL --retry 3 --connect-timeout 15       https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64       -o "$CF" || { report false "cloudflared download failed" ""; return 1; }
     chmod +x "$CF"
   fi
-  rm -f /tmp/servelless-tunnel.log
-  nohup "$CF" tunnel --url "http://127.0.0.1:$PORT" --no-autoupdate --logfile /tmp/servelless-tunnel.log >/dev/null 2>&1 &
-  local url=""
-  for i in $(seq 1 60); do
-    url=$(grep -oE 'https://[a-z0-9-]+[.]trycloudflare[.]com' /tmp/servelless-tunnel.log 2>/dev/null | tail -1)
-    [ -n "$url" ] && break
+  for attempt in 1 2; do
+    rm -f /tmp/servelless-tunnel.log
+    nohup "$CF" tunnel --url "http://127.0.0.1:$PORT" --no-autoupdate --logfile /tmp/servelless-tunnel.log >/dev/null 2>&1 &
+    local url=""
+    for i in $(seq 1 45); do
+      url=$(grep -oE 'https://[a-z0-9-]+[.]trycloudflare[.]com' /tmp/servelless-tunnel.log 2>/dev/null | tail -1)
+      [ -n "$url" ] && break
+      sleep 2
+    done
+    if [ -n "$url" ]; then
+      [ -n "$repo" ] && [ -n "$csname" ] && [ -n "$token" ] && {
+        local payload enc sha getres body
+        payload=$(printf '{"url":"%s","port":%s,"updated":"%s"}' "$url" "$PORT" "$(date -u +%FT%TZ)")
+        enc=$(printf '%s' "$payload" | base64 -w0)
+        getres=$(curl -fsS -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/tunnel-$csname.json" 2>/dev/null || true)
+        sha=$(printf '%s' "$getres" | grep -o '"sha":"[^"]*"' | head -1 | sed 's/"sha":"//;s/"//')
+        body=$(printf '{"message":"chore: update servelless tunnel","content":"%s","branch":"main"%s}' "$enc" "${sha:+, "sha": "$sha"}")
+        curl -fsS -X PUT -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/tunnel-$csname.json" -d "$body" >/dev/null 2>&1
+      }
+      report true "published tunnel" "$url"
+      echo "servelless: published $url"
+      return 0
+    fi
+    pkill -f cloudflared 2>/dev/null || true
     sleep 2
   done
-  [ -z "$url" ] && return 1
-  local repo="${GITHUB_REPOSITORY:-}"
-  local csname="${CODESPACE_NAME:-}"
-  local token="${GH_TOKEN:-}"
-  if [ -z "$repo" ] || [ -z "$csname" ] || [ -z "$token" ]; then
-    echo "servelless: tunnel=$url (no repo credentials to publish)"
-    return 0
-  fi
-  local payload
-  payload=$(printf '{"url":"%s","port":%s,"updated":"%s"}' "$url" "$PORT" "$(date -u +%FT%TZ)")
-  local sha=""
-  local getres
-  getres=$(curl -fsS -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/tunnel-$csname.json" 2>/dev/null || true)
-  sha=$(printf '%s' "$getres" | grep -o '"sha":"[^"]*"' | head -1 | sed 's/"sha":"//;s/"//')
-  local enc
-  enc=$(printf '%s' "$payload" | base64 -w0)
-  local body
-  body=$(printf '{"message":"chore: update servelless tunnel","content":"%s","branch":"main"%s}' "$enc" "${sha:+, "sha": "$sha"}")
-  curl -fsS -X PUT -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/tunnel-$csname.json" -d "$body" >/dev/null 2>&1 && echo "servelless: published $url"
+  report false "cloudflared could not obtain a tunnel url" ""
+  return 1
 }
 publish_tunnel
