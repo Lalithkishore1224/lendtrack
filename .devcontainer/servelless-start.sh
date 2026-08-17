@@ -36,7 +36,35 @@ start_app() {
     done
   fi
   if [ -f index.html ]; then
-    run_and_wait "python3 -m http.server $PORT --bind 0.0.0.0" && return 0
+    # No python guaranteed in the node image — use a tiny dependency-free
+    # static file server so any plain HTML site just works.
+    cat > /tmp/servelless-static.js <<'SERVEEOF'
+const http = require("http");
+const fs = require("fs");
+const path = require("path");
+const root = process.cwd();
+const port = Number(process.env.PORT || 3000);
+const types = {
+  ".html": "text/html", ".js": "text/javascript", ".css": "text/css",
+  ".json": "application/json", ".png": "image/png", ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg", ".gif": "image/gif", ".svg": "image/svg+xml",
+  ".webp": "image/webp", ".ico": "image/x-icon", ".txt": "text/plain",
+  ".pdf": "application/pdf", ".woff2": "font/woff2", ".woff": "font/woff",
+  ".ttf": "font/ttf", ".map": "application/json", ".xml": "application/xml"
+};
+http.createServer((req, res) => {
+  let p = decodeURIComponent((req.url || "/").split("?")[0]);
+  if (p === "/") p = "/index.html";
+  const fp = path.normalize(path.join(root, p));
+  if (!fp.startsWith(root)) { res.writeHead(403); res.end("Forbidden"); return; }
+  fs.readFile(fp, (err, data) => {
+    if (err) { res.writeHead(404); res.end("Not found"); return; }
+    res.writeHead(200, { "Content-Type": types[path.extname(fp).toLowerCase()] || "application/octet-stream" });
+    res.end(data);
+  });
+}).listen(port, "0.0.0.0");
+SERVEEOF
+    run_and_wait "node /tmp/servelless-static.js" && return 0
   fi
   return 1
 }
