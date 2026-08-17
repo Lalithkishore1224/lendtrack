@@ -1,7 +1,7 @@
 #!/bin/bash
 set -u
 export PORT=3000
-START_CMD='static site (serve index.html)'
+START_CMD=''
 LOG=/tmp/servelless-app.log
 CF="$HOME/.servelless/cloudflared"
 
