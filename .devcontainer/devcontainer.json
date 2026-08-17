@@ -1,6 +1,6 @@
 {
   "name": "Servelless Verify",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "image": "node:22",
   "forwardPorts": [
     3000
   ],
