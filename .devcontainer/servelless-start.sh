@@ -7,7 +7,7 @@ CF="$HOME/.servelless/cloudflared"
 
 repo="${GITHUB_REPOSITORY:-}"
 csname="${CODESPACE_NAME:-}"
-token="${GH_TOKEN:-}"
+token="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
 
 # Write a status file back to the repo (.servelless/status-<cs>.json) so
 # verification can report exactly what happened — even on silent failures.
@@ -115,18 +115,35 @@ publish_tunnel() {
       sleep 2
     done
     if [ -n "$url" ]; then
-      [ -n "$repo" ] && [ -n "$csname" ] && [ -n "$token" ] && {
+      if [ -n "$repo" ] && [ -n "$csname" ] && [ -n "$token" ]; then
         local payload enc sha getres body
         payload=$(printf '{"url":"%s","port":%s,"updated":"%s"}' "$url" "$PORT" "$(date -u +%FT%TZ)")
         enc=$(printf '%s' "$payload" | base64 -w0)
         getres=$(curl -fsS -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/tunnel-$csname.json" 2>/dev/null || true)
         sha=$(printf '%s' "$getres" | grep -o '"sha":"[^"]*"' | head -1 | sed 's/"sha":"//;s/"//')
         body=$(printf '{"message":"chore: update servelless tunnel","content":"%s","branch":"main"%s}' "$enc" "${sha:+, "sha": "$sha"}")
-        curl -fsS -X PUT -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/tunnel-$csname.json" -d "$body" >/dev/null 2>&1
-      }
-      report true "published tunnel" "$url"
-      echo "servelless: published $url"
-      return 0
+        if curl -fsS -X PUT -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/contents/.servelless/tunnel-$csname.json" -d "$body" >/dev/null 2>&1; then
+          report true "published tunnel" "$url"
+          echo "servelless: published $url"
+          return 0
+        fi
+        # Contents API failed (restricted token) — fall back to a git push, which
+        # works in codespaces via the GITHUB_TOKEN credential helper.
+        git config user.email "servelless@localhost" >/dev/null 2>&1
+        git config user.name "servelless" >/dev/null 2>&1
+        git fetch origin main --quiet >/dev/null 2>&1
+        git checkout -B servelless-tunnel origin/main >/dev/null 2>&1
+        printf '{"url":"%s","port":%s,"updated":"%s"}' "$url" "$PORT" "$(date -u +%FT%TZ)" > ".servelless/tunnel-$csname.json"
+        git add -f ".servelless/tunnel-$csname.json" >/dev/null 2>&1
+        git commit -m "chore: servelless tunnel" >/dev/null 2>&1
+        if git push -f origin servelless-tunnel >/dev/null 2>&1; then
+          report true "published tunnel (git)" "$url"
+          echo "servelless: published $url"
+          return 0
+        fi
+      fi
+      report false "tunnel url obtained but could not publish to repo" "$url"
+      return 1
     fi
     pkill -f cloudflared 2>/dev/null || true
     sleep 2
